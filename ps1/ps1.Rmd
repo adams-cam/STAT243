@@ -1,0 +1,174 @@
+---
+title: "STAT 243 - PS 1"
+author: "Cam Adams"
+date: "9/8/2017"
+output:
+  rmarkdown::pdf_document
+---
+
+
+
+
+
+1. This question is the class survey that you already filled out.
+
+2. This problem provides practice in downloading and manipulating data using shell scripting
+
+  a. Download the data for apricotes 
+```{bash,eval=T}
+cd /Users/CamAdams/repos/STAT243/ps1/ #set workin
+wget -O tmp.zip -nv "http://data.un.org/Handlers/DownloadHandler.ashx?DataFilter=itemCode:526&DataMartId=FAO&Format=csv&c=2,3,4,5,6,7&s=countryName:asc,elementCode:asc,year:desc"
+unzip tmp.zip #unzip data
+sed "s/, /_/g"  UNdata_Export*.csv | tr -d '"' > tmp1.csv #replace , with _ inside fields
+mv tmp1.csv apricots.csv #rename
+rm UNdata_Export*.csv tmp.zip #remove unused files
+```
+
+Extract the data for individual countries into one file and for
+regions of the world into another file. 
+
+```{bash,eval=T}
+grep -v "+" apricots.csv > apricots_Country.csv #create country only data
+grep "+" apricots.csv > apricots_World.csv #create region data
+```
+
+Then subset the country-level data to the year 2005. Based on the “area harvested” determine the five countries using the most land to produce apricots. You’ll need to look carefully at arguments to the sort utility.
+
+```{bash,eval=T}
+#grep -w 2005 apricots_Country.csv | head -5 #preview 2005 country subset
+grep -w 2005 apricots_Country.csv > apricots_Country_2005.csv #write 2005 country subset
+grep "Area Harvested" apricots_Country_2005.csv | sort -t, -n -r -k6 | cut -d, -f1,3,4,6 | head -5 #five countries in 2005 with the most land to product apricods  
+
+```
+
+Now automate your analysis and examine the top five countries for 1965, 1975, 1985, 1995, and 2005. Have the rankings changed?
+
+```{bash,eval=T}
+#!/bin/bash
+#prob2a.sh
+#for loop to automate subseting top five countries with land available for harvest in years 1965-2005 in 10 year increments
+                                     
+for YEAR in 1965 1975 1985 1995 2005
+  do
+    echo "==== $YEAR ===="
+    grep "Area Harvested" apricots_Country.csv | grep -w $YEAR | sort -t, -n -r -k6 | cut -d, -f1,3,4,6 | head -5
+done 
+```
+
+The ranking have changed some over time. The USSR was at the top in 1965 and 1975, but fell off the list, and teh US was in the top 5 only in 1965. European countries (Italy, Spain, Ukraine) were in the top five until 2005. Turkey has always been near or at the top of the rankings. More non-European countires have been ranked in the top 5 after 1985, and include Iran, Tunisia, Algeria, and Uzbekistan.
+
+```{bash,echo=F,eval=T}
+rm apricots*
+```
+
+
+b. Write a bash function that takes as input a single item code (e.g., 526 for apricots, 572 for avocados) and prints out to the screen the data stored in the CSV file, such that the information could be piped on to UNIX another operation. Your function should detect if the user provides the wrong number of arguments and return a useful error message. It should also give useful help information if the user invokes the function as: “myfun -h”.
+
+
+```{bash,eval=T}
+#!/bin/bash                                                                           
+#function that will                                                                                                                                                                  
+  #1. takes as input a single item code (e.g., 526 for apricots, 572 for avocados)                         
+  #2. prints out to the screen the data stored in the CSV file, such that the information could be piped on to UNIX another operation.                                               
+  #3. it will detect if the user provides the wrong number of arguments and return a useful error message. 
+  #4. help info is avaiable with "-h"
+  
+func() {
+
+    #inputs                                                                 
+    VAR=$1
+    VAR_LENGTH=${#VAR}
+
+    echo "================"
+    echo "Input: $VAR"
+
+    #help info                                                                     
+    if  [[ "$1" == "-h" || "$1" == "--help" ]]    #help file                                                    
+    then
+        printf "This function downloads historical agricultural data from the UN website. \n"
+        printf "It will only accept a three digit integer: func 576 \n"
+        printf "Any other entry will return an error. \n"
+        return
+    fi
+
+    #check input formatting                                                    
+    if ! [[ VAR_LENGTH -eq 3 ]]                   #input==3 char     
+    then
+        echo "Sorry, 3 digit integers only"
+        return
+    fi
+
+    if ! [[ $VAR =~ ^[0-9]+$ ]]                   #numeric digits only
+    then
+        echo "Sorry, 3 digit integers only"
+        return
+    fi
+
+    #retrieve data from UN website using input $VAR
+    wget -O tmp.zip -nv "http://data.un.org/Handlers/DownloadHandler.ashx?DataFilter=itemCode:$VAR&DataMartId=FAO&Format=csv&c=2,3,4,5,6,7&s=countryName:asc,elementCode:asc,year:desc"
+    #unzip and remove .zip file                                    
+    unzip tmp.zip 
+    rm tmp.zip
+    #rename file using user input
+    mv UN*.csv $VAR.csv
+    #print resulting .csv to screen                                                      
+    cat $VAR.csv | head -5
+    
+    return
+}
+func
+func -h
+func --help
+func 0
+func 999999
+func abc
+func a
+func 526 
+func 572
+```
+
+3. Your task here is to automatically download all the files ending in .txt from this National Climate Data Center website: http://www1.ncdc.noaa.gov/pub/data/ghcn/daily/...
+
+```{bash,eval=F,echo=F}
+
+wget https://www1.ncdc.noaa.gov/pub/data/ghcn/daily/ #download html of the data
+grep .txt index.html | cut -d'"' -f8 > index.html.txtFileNames #get .txt file names from index.html
+wget -i ./index.html.txtFileNames -nv -B https://www1.ncdc.noaa.gov/pub/data/ghcn/daily/ #download .txt names using list of .txt files
+```
+
+```{bash,eval=T}
+echo "download html"
+wget -nv https://www1.ncdc.noaa.gov/pub/data/ghcn/daily/ #download html of the data
+grep .txt index.html | cut -d'"' -f8 > index.html.txtFileNames #get .txt file names from index.html
+
+#while loop to extract each text file from website
+while read FILE
+  do
+    echo "================"
+    echo "Dowloading: $FILE"
+    wget -nv https://www1.ncdc.noaa.gov/pub/data/ghcn/daily/$FILE #download text file
+done < index.html.txtFileNames
+```
+
+```{bash,echo=F,eval=T}
+rm *.html* *.txt *.csv #remove downloaded files  
+```
+
+4. Your task in this problem is to produce a single-page of PDF that looks like the last page of this  assignment, using either the knitr package in R with LATEX or R Markdown. If you are a Statistics student you should use LATEX. 
+  
+  
+```{r,echo=FALSE}
+rm(list=ls())
+data("LakeHuron")
+```
+\pagebreak
+
+
+
+```{r,fig.width=3}
+hist(LakeHuron)
+lowHi <- c(which.min(LakeHuron), which.max(LakeHuron))
+yearExtrema <- attributes(LakeHuron)$tsp[1]-1 + lowHi
+```
+The height of the water level in Lake Huron fluctuates over time. Here I ’analyze’ the variation using R. I show a histogram of the lake levels for the period `r yearExtrema[2]` to `r yearExtrema[1]`.
+

@@ -1,0 +1,30 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyperFirstAtBeginDocument{\AtBeginDocument}
+\HyperFirstAtBeginDocument{\ifx\hyper@anchor\@undefined
+\global\let\oldcontentsline\contentsline
+\gdef\contentsline#1#2#3#4{\oldcontentsline{#1}{#2}{#3}}
+\global\let\oldnewlabel\newlabel
+\gdef\newlabel#1#2{\newlabelxx{#1}#2}
+\gdef\newlabelxx#1#2#3#4#5#6{\oldnewlabel{#1}{{#2}{#3}}}
+\AtEndDocument{\ifx\hyper@anchor\@undefined
+\let\contentsline\oldcontentsline
+\let\newlabel\oldnewlabel
+\fi}
+\fi}
+\global\let\hyper@last\relax 
+\gdef\HyperFirstAtBeginDocument#1{#1}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\@writefile{toc}{\contentsline {section}{\numberline {1}In class we discussed the idea of a closure as a function ...}{1}{section.1}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}In class I mentioned that integers as large as $2^{53}$ can be stored exactly in the double precision floating point representation.}{1}{section.2}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Demonstrate how the integers $1, 2, 3, ...,2^{53} - 2, 2^{53} - 1$ can be stored exactly in the $(−1)^S \times 1.d \times 2^{e−1023}$ format where $d$ is represented as 52 bits}{1}{subsection.2.1}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Then show that $2^{53}$ and $2^{53} + 2$ can be represented exactly but $2^{53} + 1$ cannot, so the spacing of numbers of this magnitude is 2.}{2}{subsection.2.2}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Finally show that for numbers starting with $2^{54}$ that the spacing between integers that can be represented exactly is 4.}{2}{subsection.2.3}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}GPUs tend to use single precision floating point calculations (4 bytes per real number). One advantage of this is that one is moving around half as much data during the process of computations so that should speed up computation, at the expense of precision. Let’s explore a similar question related to integers.}{3}{section.3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Is it faster to copy a large vector of integers than a numeric vector of the same length in R? Do a bit of experimentation and see what you find.}{3}{subsection.3.1}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Is it faster to take a subset of size k ≈ n/2 from an integer vector of size n than from a numeric vector of size n?}{4}{subsection.3.2}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Let’s consider parallelization of a simple linear algebra computation. In your answer, you can assume m = n/p is an integer.}{5}{section.4}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Consider trying to parallelize matrix multiplication, in particular the computation XY where both $X$ and $Y$ are $n \times n$. There are lots of ways we can break up the computations, but let’s keep it simple and consider parallelizing over the columns of $Y$ . Given the considerations we discussed in Unit 7, when you parallelize the matrix multiplication, why might it be better to break up Y into p blocks of m = n/p columns rather than into n individual column-wise computations? Note: I’m not expecting a detailed answer here – a sentence or two is fine.}{5}{subsection.4.1}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Let’s consider two ways of parallelizing the computation and count (1) the amount of memory used at any single moment in time, when all p workers are doing their calculations, including memory use in storing the result and (2) the communication cost – count the total number of numbers that need to be passed to the workers as well as the numbers passed from the workers back to the master when returning the result. Which approach is better for minimizing memory use and which for minimizing communication? Approach A: divide Y into p blocks of equal numbers of columns, where the first block has columns $1, ..., m$ where $m = \frac  {n}{p}$ and so forth. Pass $X$ and the $j^{th}$ submatrix of $Y$ to the $j^{th}$ task. Approach B: divide X into p blocks of rows, where the first block has rows 1, ..., m and Y into p blocks of columns as above. Pass pairs of a submatrix of X and submatrix of Y to the different tasks.}{5}{subsection.4.2}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Extra Credit}{5}{section.5}}

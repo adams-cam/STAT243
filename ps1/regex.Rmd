@@ -1,0 +1,40 @@
+---
+title: "Regex: Unit 4, Section 3.1"
+author: "Cam Adams"
+date: "9/8/2017"
+output: pdf_document
+---
+
+
+```{r} 
+
+require(plotrix)
+?addtable2plot
+
+
+#1. Only the strings “cat”, “at”, and “t”.
+grep("^(cat|at|t)$",  c("cat", "at","t","ct"),value=T)
+
+#2. The strings “cat”, “caat”, “caaat”, etc.
+grep("ca+t", c("cat","caat","caaat","ct"),value=T)
+grep("ca{1,}t", c("cat","caat","caaat","ct"),value=T)
+
+#3. “dog”, “Dog”, “dOg”, “doG”, “DOg”, etc. (the word dog in any combination of lower and upper case).
+grep("[dD][oO][gG]",c("dog","Dog","dOg","doG","DOg"),value=T)
+grep("(?i)dog",c("dog","Dog","dOg","doG","DOg"),value=T)
+
+#4. Any positive number with or without a decimal point.
+regexpr("^[0-9]+([\\.][0-9]+)?^[^A_Za-z]",c("25", "25.01034","2825",".5"))
+regexpr("^[0-9]+([\\.][0-9]+)?^[^A_Za-z]",c("25", "25.01034","2825",".5"))
+
+grep("^[1-9]\\d*(\\.*\\d*)$?",c(25, 25.01034,2825,0.5),value=T,)
+grep("[^-](0\\.\\d+|\\d+\\.{0,1}\\d*)|\\.\\d+",c(-5,25, 25.01034,2825),value=T)
+
+?regex
+
+#5. Any line with exactly two words separated by any amount of whitespace (spaces or tabs). There may or may not be whitespace at the beginning or end of the line
+grep("\\shello\\sworld\\s",c("Hello world","Hello world "," Hello world"),perl = T)
+
+
+```
+

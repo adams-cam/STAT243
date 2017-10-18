@@ -1,0 +1,6 @@
+base
+testthat
+stringr
+curl
+XML
+knitr

@@ -1,0 +1,11 @@
+base
+microbenchmark
+ggplot2
+reshape
+knitr
+bitops
+RCurl
+stringr
+pryr
+xtable
+testthat

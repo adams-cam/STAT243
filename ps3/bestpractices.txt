@@ -1,0 +1,13 @@
+#Cam Adams
+#ps3.txt
+#question 1(c).
+
+I read: 
+- Wilson et.al. (http://arxiv.org/pdf/1210.0530v3.pdf)
+- Millman and Perez
+(https://github.com/berkeley-stat243/stat243-fall-2014/blob/master/section/millman-perez.pdf)
+
+I try to incorporate good coding practices, reproducible research ideals, etc., into my research work. However, the last stage of research-report production-prevents me from fully incorporating these practices. My lab still mostly uses .doc (or google docs equivalent) file format to produce and submit research drafts. Do you have advice on how to create elegant/efficient work flow to go from .R/python code to latex typesetting/tables to .doc format without cutting and pasting. This is by far the biggest barrier I've seen to fully incorporating the ‘R/python computation --> completed journal articles” workflow.
+
+I found “Best Practices for Scientific Computing” informative. My code is usually just for me, and is rarely viewed by others. Despite that, I do try to uses wrappers/functions to prevent repeated copy/pasted code. What are recommendations, besides version control for small changes to code. For example, in the first set of analyses I used one set of covariates, and the next week, I want to change those covariates. Is this a scenario where you’ simply recommend version control, another script (analysis_1, analysis_2)?
+ 

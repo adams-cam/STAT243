@@ -1,0 +1,424 @@
+\documentclass{article}\usepackage[]{graphicx}\usepackage[]{color}
+%% maxwidth is the original width if it is less than linewidth
+%% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+\let\hlipl\hlkwb
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
+\title{Problem Set 5}
+\author{Cameron Adams}
+
+
+\usepackage{float, hyperref}
+\usepackage[margin = 1in]{geometry}
+\usepackage{graphicx}
+\usepackage{sectsty}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\begin{document}
+%\SweaveOpts{concordance=TRUE}
+
+\maketitle
+
+
+
+
+
+%1
+\section{In class we discussed the idea of a closure as a function ...}
+ 
+%2
+\section{In class I mentioned that integers as large as $2^{53}$ can be stored exactly in the double precision floating point representation.}
+
+
+\subsection{Demonstrate how the integers $1, 2, 3, ...,2^{53} - 2, 2^{53} - 1$ can be stored exactly in the $(−1)^S \times 1.d \times 2^{e−1023}$ format where $d$ is represented as 52 bits}
+
+For a double, there are 8 bytes=64 bits to represent the floating point number.
+\begin{itemize}
+    \item $S$ (1 bits) reprsents the sign of teh number (neg/pos)
+    \item $e$ (11 bits) is the base-2 exponent number, $2^11 = 2048$
+    \item $d$ (52 bits) the computer accuracy of the real number
+\end{itemize}
+
+We can solve for $d$ by rearrange the following equation: $decimal/integer = S \times e \times d$.
+Therefore, $1,2,...,2^{53}, 2^{53}-1$ can be represented by:
+
+$$\begin{aligned}
+    1 =& (-1)^0 \times 1.0000000000000000 \times 2^{1023 - 1023} \\
+    2 =& (-1)^0 \times 1.0000000000000000 \times 2^{1024 - 1023} \\
+    2^{53} - 2 =& (-1)^0 \times \frac{2^{53} - 2}{2^{52}} \times 2^{1075 - 1023}  \\
+    2^{53} - 1 =& (-1)^0 \times \frac{2^{53} - 1}{2^{52}} \times 2^{1075 - 1023}  \\
+    2^{53} =& (-1)^0 \times 1.0000000000000000 \times 2^{1076 - 1023}  \\
+\end{aligned}$$
+
+See code below for equalities.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlcom{#set digits to higher precision than default}
+\hlkwd{options}\hlstd{(}\hlkwc{digits} \hlstd{=} \hlnum{22}\hlstd{)}
+
+\hlnum{1} \hlopt{==} \hlnum{1}\hlopt{*}\hlnum{2}\hlopt{^}\hlstd{(}\hlnum{1023}\hlopt{-}\hlnum{1023}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+\begin{alltt}
+\hlnum{2} \hlopt{==} \hlnum{1}\hlopt{*}\hlnum{2}\hlopt{^}\hlstd{(}\hlnum{1024}\hlopt{-}\hlnum{1023}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+\begin{alltt}
+\hlnum{2}\hlopt{^}\hlnum{53} \hlopt{-} \hlnum{2} \hlopt{==} \hlstd{((}\hlnum{2}\hlopt{^}\hlnum{53} \hlopt{-} \hlnum{2}\hlstd{)} \hlopt{/} \hlnum{2}\hlopt{^}\hlnum{52}\hlstd{)} \hlopt{*} \hlnum{2}\hlopt{^}\hlstd{(}\hlnum{1075} \hlopt{-} \hlnum{1023}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+\begin{alltt}
+\hlnum{2}\hlopt{^}\hlnum{53} \hlopt{-} \hlnum{1} \hlopt{==} \hlstd{((}\hlnum{2}\hlopt{^}\hlnum{53} \hlopt{-} \hlnum{1}\hlstd{)} \hlopt{/} \hlnum{2}\hlopt{^}\hlnum{52}\hlstd{)} \hlopt{*} \hlnum{2}\hlopt{^}\hlstd{(}\hlnum{1075} \hlopt{-} \hlnum{1023}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+\begin{alltt}
+\hlnum{2}\hlopt{^}\hlnum{53} \hlopt{==} \hlnum{1}\hlopt{*}\hlnum{2}\hlopt{^}\hlstd{(}\hlnum{1076}\hlopt{-}\hlnum{1023}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+\subsection{Then show that $2^{53}$ and $2^{53} + 2$ can be represented exactly but $2^{53} + 1$ cannot, so the spacing of numbers of this magnitude is 2.}
+
+These numbers in floating point format are:
+
+
+$$\begin{aligned}
+    2^{53} =& (-1)^0 \times 1.0000000000000000 \times 2^{1076 - 1023}  \\
+    2^{53} + 1 =& (-1)^0 \times 1.0000000000000001 \times 2^{1076-1023} \\
+    2^{53} + 2 =& (-1)^0 \times 1.0000000000000002 \times 2^{1076-1023} \\
+\end{aligned}$$
+
+
+However, $2^{53} +1$ requires more digits than there is precision. Precision is determined by machine epsilon, $\epsilon$, and absolute spacing is $x\epsilon = 2^{53} \times 2^{-52} = 2$. Therefore, at $2^{53}$ power, we can represenet numbers with spacing == 2. So $2^{53}$ and $2^{53}+2$ work, but $2^{53}+1$ does not.
+
+See code below for equalities.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlnum{2}\hlopt{^}\hlnum{53}
+\end{alltt}
+\begin{verbatim}
+## [1] 9007199254740992
+\end{verbatim}
+\begin{alltt}
+\hlnum{2}\hlopt{^}\hlnum{53} \hlopt{+} \hlnum{1}
+\end{alltt}
+\begin{verbatim}
+## [1] 9007199254740992
+\end{verbatim}
+\begin{alltt}
+\hlnum{2}\hlopt{^}\hlnum{53} \hlopt{+} \hlnum{2}
+\end{alltt}
+\begin{verbatim}
+## [1] 9007199254740994
+\end{verbatim}
+\begin{alltt}
+\hlnum{2}\hlopt{^}\hlnum{53} \hlopt{==} \hlnum{1.000000000000000} \hlopt{*} \hlnum{2}\hlopt{^}\hlstd{\{}\hlnum{1076}\hlopt{-}\hlnum{1023}\hlstd{\}}
+\end{alltt}
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+\begin{alltt}
+\hlnum{2}\hlopt{^}\hlnum{53} \hlopt{==} \hlnum{1.0000000000000001} \hlopt{*} \hlnum{2}\hlopt{^}\hlstd{\{}\hlnum{1076}\hlopt{-}\hlnum{1023}\hlstd{\}}
+\end{alltt}
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+\begin{alltt}
+\hlnum{2}\hlopt{^}\hlnum{53} \hlopt{+} \hlnum{1} \hlopt{==} \hlnum{1.0000000000000001} \hlopt{*} \hlnum{2}\hlopt{^}\hlstd{\{}\hlnum{1076}\hlopt{-}\hlnum{1023}\hlstd{\}}
+\end{alltt}
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+\begin{alltt}
+\hlnum{2}\hlopt{^}\hlnum{53} \hlopt{+} \hlnum{2} \hlopt{==} \hlnum{1.0000000000000002} \hlopt{*} \hlnum{2}\hlopt{^}\hlstd{\{}\hlnum{1076}\hlopt{-}\hlnum{1023}\hlstd{\}}
+\end{alltt}
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+\subsection{Finally show that for numbers starting with $2^{54}$ that the spacing between integers that can be represented exactly is 4.}
+
+This answer is similar to above. We can determine absolute spacing with $x\epsilon = 2^{54} \times 2^{-52} == 4$. 
+
+See code below for equalities.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlnum{2}\hlopt{^}\hlnum{54}
+\end{alltt}
+\begin{verbatim}
+## [1] 18014398509481984
+\end{verbatim}
+\begin{alltt}
+\hlnum{2}\hlopt{^}\hlnum{54} \hlopt{+} \hlnum{2}
+\end{alltt}
+\begin{verbatim}
+## [1] 18014398509481984
+\end{verbatim}
+\begin{alltt}
+\hlnum{2}\hlopt{^}\hlnum{54} \hlopt{+} \hlnum{4}
+\end{alltt}
+\begin{verbatim}
+## [1] 18014398509481988
+\end{verbatim}
+\begin{alltt}
+\hlnum{2}\hlopt{^}\hlnum{54} \hlopt{==} \hlnum{1.000000000000000} \hlopt{*} \hlnum{2}\hlopt{^}\hlstd{\{}\hlnum{1077}\hlopt{-}\hlnum{1023}\hlstd{\}}
+\end{alltt}
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+\begin{alltt}
+\hlnum{2}\hlopt{^}\hlnum{54} \hlopt{==} \hlnum{1.0000000000000001} \hlopt{*} \hlnum{2}\hlopt{^}\hlstd{\{}\hlnum{1077}\hlopt{-}\hlnum{1023}\hlstd{\}}
+\end{alltt}
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+\begin{alltt}
+\hlnum{2}\hlopt{^}\hlnum{54} \hlopt{+} \hlnum{2} \hlopt{==} \hlnum{1.0000000000000001} \hlopt{*} \hlnum{2}\hlopt{^}\hlstd{\{}\hlnum{1077}\hlopt{-}\hlnum{1023}\hlstd{\}}
+\end{alltt}
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+\begin{alltt}
+\hlnum{2}\hlopt{^}\hlnum{54} \hlopt{+} \hlnum{4} \hlopt{==} \hlnum{1.0000000000000002} \hlopt{*} \hlnum{2}\hlopt{^}\hlstd{\{}\hlnum{1077}\hlopt{-}\hlnum{1023}\hlstd{\}}
+\end{alltt}
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+\section{GPUs tend to use single precision floating point calculations (4 bytes per real number). One advantage of this is that one is moving around half as much data during the process of computations so that should speed up computation, at the expense of precision. Let’s explore a similar question related to integers.}
+
+\subsection{Is it faster to copy a large vector of integers than a numeric vector of the same length in R? Do a bit of experimentation and see what you find.} %3a
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{rm}\hlstd{(}\hlkwc{list}\hlstd{=}\hlkwd{ls}\hlstd{())}
+
+\hlkwd{require}\hlstd{(dplyr)}
+\hlkwd{require}\hlstd{(data.table)}
+
+\hlcom{#return to default}
+\hlkwd{options}\hlstd{(}\hlkwc{digits} \hlstd{=} \hlnum{7}\hlstd{)}
+
+\hlcom{#specify integer and numeric vector of same length}
+\hlstd{x_num} \hlkwb{<-} \hlkwd{rnorm}\hlstd{(}\hlnum{1e7}\hlstd{)}
+\hlstd{x_int} \hlkwb{<-} \hlkwd{as.integer}\hlstd{(x_num)}
+
+\hlstd{x_int_copy} \hlkwb{<-} \hlkwd{copy}\hlstd{(x_int)}
+\hlstd{x_num_copy} \hlkwb{<-} \hlkwd{copy}\hlstd{(x_num)}
+
+\hlkwd{address}\hlstd{(x_int);} \hlkwd{address}\hlstd{(x_int_copy)}
+\end{alltt}
+\begin{verbatim}
+## [1] "0x123800000"
+## [1] "0x11c898000"
+\end{verbatim}
+\begin{alltt}
+\hlkwd{address}\hlstd{(x_num);} \hlkwd{address}\hlstd{(x_num_copy)}
+\end{alltt}
+\begin{verbatim}
+## [1] "0x139630000"
+## [1] "0x113000000"
+\end{verbatim}
+\begin{alltt}
+\hlcom{#benchmark copy timing of vectors}
+\hlkwd{require}\hlstd{(microbenchmark)}
+\hlkwd{microbenchmark}\hlstd{(x_int_copy} \hlkwb{<-} \hlkwd{copy}\hlstd{(x_int),}
+               \hlstd{x_num_copy} \hlkwb{<-} \hlkwd{copy}\hlstd{(x_num),}
+               \hlkwc{times} \hlstd{=} \hlnum{20L}\hlstd{,} \hlkwc{unit}\hlstd{=} \hlstr{"ms"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## Unit: milliseconds
+##                       expr      min       lq     mean    median       uq
+##  x_int_copy <- copy(x_int) 18.06868 46.95512 111.8652  66.75479 118.4839
+##  x_num_copy <- copy(x_num) 82.63354 99.28604 205.6414 136.73618 218.8237
+##       max neval
+##  731.3262    20
+##  676.3228    20
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+It is much faster (\~3x) to make a copy of the integer vector than numeric vector. This make sense as the integer vector is essentially half the size as the numeric vector, due to the number of bits required to store numeric (64) vs integer (32) numbers.
+
+\subsection{Is it faster to take a subset of size k ≈ n/2 from an integer vector of size n than from a numeric vector of size n?}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlcom{#specify size of subset}
+\hlstd{k} \hlkwb{<-} \hlkwd{length}\hlstd{(x_num)}\hlopt{/}\hlnum{2}
+
+\hlcom{#get index of positions to subset, length k}
+\hlstd{subset} \hlkwb{<-} \hlkwd{sample}\hlstd{(}\hlkwc{x} \hlstd{=} \hlnum{1}\hlopt{:}\hlkwd{length}\hlstd{(x_num),} \hlkwc{size} \hlstd{= k,} \hlkwc{replace} \hlstd{= F)}
+
+\hlcom{#benchmark}
+\hlkwd{microbenchmark}\hlstd{(x_int[subset],}
+               \hlstd{x_num[subset],}
+               \hlkwc{times} \hlstd{=} \hlnum{20L}\hlstd{,}
+               \hlkwc{unit} \hlstd{=} \hlstr{"ms"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## Unit: milliseconds
+##           expr      min       lq     mean   median       uq      max neval
+##  x_int[subset] 345.7466 427.0215 592.1082 511.2336 657.3876 1300.393    20
+##  x_num[subset] 366.7981 500.1221 703.2039 650.8605 891.7003 1152.722    20
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+It is faster to subset the integer vector than the numeric vector (\~15-20\% faster). 
+
+\section{Let’s consider parallelization of a simple linear algebra computation. In your answer, you can assume m = n/p is an integer.} %4
+
+\subsection{Consider trying to parallelize matrix multiplication, in particular the computation XY where both $X$ and $Y$ are $n \times n$. There are lots of ways we can break up the computations, but let’s keep it simple and consider parallelizing over the columns of $Y$ . Given the considerations we discussed in Unit 7, when you parallelize the matrix multiplication, why might it be better to break up Y into p blocks of m = n/p columns rather than into n individual column-wise computations? Note: I’m not expecting a detailed answer here – a sentence or two is fine.}
+
+
+
+In this scenario, over parallelizing (n-idinvidiauls columns) could be slower than parallelizing over $p$ processors. These computations are likley to be relatively fast, and sending each column as a process could introduce lag-time into each parallel process. It would be better to parallelize computations over to the nodes/cores For example, if Y is 40x40 matrix, it would  make sense to divide our  number of processes (40) by the number of cores (4), 40/4=10, and send subsets of 10 columns of Y to be processed by each core. 
+
+\subsection{Let’s consider two ways of parallelizing the computation and count (1) the amount of memory
+used at any single moment in time, when all p workers are doing their calculations, including memory use in storing the result and (2) the communication cost – count the total number of numbers that need to be passed to the workers as well as the numbers passed from the workers back to the master when returning the result. Which approach is better for minimizing memory use and which for minimizing communication? Approach A: divide Y into p blocks of equal numbers of columns, where the first block has columns $1, ..., m$ where $m = \frac{n}{p}$ and so forth. Pass $X$ and the $j^{th}$ submatrix of $Y$ to the $j^{th}$ task. Approach B: divide X into p blocks of rows, where the first block has rows 1, ..., m and
+Y into p blocks of columns as above. Pass pairs of a submatrix of X and submatrix of Y to
+the different tasks.}
+
+
+Answer depends on the size of the matrix. The second approach has $p^2$ more processes than the first - dividing up both X and Y by m, require us to make sure each row is multiplied by all elements of each column. Additionally, reassembly of complete $XY$ matrix is more difficult in the second approach, because we have $p^2$ more submatrices than in the first appraoch. There are also memory allocations to consider. There may be limited memory available, and having further atomizing operations (second approach vs first approach), may over burden available memeory. I would think the first approach would be best.
+
+
+\section{Extra Credit}
+
+Base-2 can store numbers in increments of 5, e.g. (5, 0.5, 0.005, 0.001, etc). Therefore, numbers divisible by 5 can be represented by their component parts. So 0.3 + 0.2 == 0.5, 0.3 + 0.7 == 1.0, 0.9 - 0.4 == 0.5, etc. Other numbers, such as 0.3, cannot be exactly reprented by base-2 numbers. Therefore, $0.2 + 0.1 != 0.3$
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{options}\hlstd{(}\hlkwc{digits} \hlstd{=} \hlnum{22}\hlstd{)}
+
+\hlcom{#0.3 ex.}
+\hlnum{0.1} \hlopt{+} \hlnum{0.2} \hlopt{==} \hlnum{0.3}
+\end{alltt}
+\begin{verbatim}
+## [1] FALSE
+\end{verbatim}
+\begin{alltt}
+\hlnum{0.1} \hlopt{+} \hlnum{0.2}
+\end{alltt}
+\begin{verbatim}
+## [1] 0.3000000000000000444089
+\end{verbatim}
+\begin{alltt}
+\hlnum{0.3}
+\end{alltt}
+\begin{verbatim}
+## [1] 0.2999999999999999888978
+\end{verbatim}
+\begin{alltt}
+\hlcom{#0.5, 1.0 ex.}
+\hlnum{0.3} \hlopt{+} \hlnum{0.2} \hlopt{==} \hlnum{0.5}
+\end{alltt}
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+\begin{alltt}
+\hlnum{0.3} \hlopt{+} \hlnum{0.7} \hlopt{==} \hlnum{1}
+\end{alltt}
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+\begin{alltt}
+\hlnum{0.9} \hlopt{+} \hlnum{0.1} \hlopt{==} \hlnum{1}
+\end{alltt}
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+\begin{alltt}
+\hlnum{0.9} \hlopt{-} \hlnum{0.4} \hlopt{==} \hlnum{0.5}
+\end{alltt}
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+\begin{alltt}
+\hlnum{0.003} \hlopt{+} \hlnum{0.002} \hlopt{==} \hlnum{0.005}
+\end{alltt}
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+
+
+
+\end{document}
+
+
+
+
+
+

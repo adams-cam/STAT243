@@ -1,0 +1,15 @@
+\BOOKMARK [1][-]{section.1}{On Monday, September 25, section will consist of a discussion of good practices in reproducible research and computing, led by Andrew and Chris. In preparation, please do the following...}{}% 1
+\BOOKMARK [1][-]{section.2}{DRAMATIS PERSONAE: INSTRUCTOR, STUDENTS, GSI}{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{Extract the plays into a character vector or a list, with one element for each play. Skip the information at the start of the file, the first piece \(the sonnets\), and the last piece \(Lover's Complaint\).}{section.2}% 3
+\BOOKMARK [2][-]{subsection.2.2}{Extract meta data about each play and extract the body of the play. The result should be in the form of an R object, with one element for each play. By meta data I mean the year of the play, the title, the number of acts, and the number of scenes.}{section.2}% 4
+\BOOKMARK [2][-]{subsection.2.3}{Extract the actual text spoken by the characters into your object.}{section.2}% 5
+\BOOKMARK [2][-]{subsection.2.4}{Now use the constructed data object to calculate summary statistics about each play. These should include the following: i. The number of unique speakers. ii. The number of spoken chunks. iii. The number of sentences and words spoken and average number of words per chunk. iv. The number of unique words. When extracting words, make sure you remove punctuation such as commas and periods but not apostrophes.}{section.2}% 6
+\BOOKMARK [3][-]{subsubsection.2.4.1}{The number of unique speakers.}{subsection.2.4}% 7
+\BOOKMARK [3][-]{subsubsection.2.4.2}{The number of spoken chunks.}{subsection.2.4}% 8
+\BOOKMARK [3][-]{subsubsection.2.4.3}{The number of sentences and words spoken and average number of words per chunk.}{subsection.2.4}% 9
+\BOOKMARK [3][-]{subsubsection.2.4.4}{The number of unique words.}{subsection.2.4}% 10
+\BOOKMARK [2][-]{subsection.2.5}{Plot some of your summary statistics as a function of time...}{section.2}% 11
+\BOOKMARK [2][-]{subsection.2.6}{Extra credit:}{section.2}% 12
+\BOOKMARK [1][-]{section.3}{This problem asks you to design an object-oriented programming \(OOP\) approach to the Shakespeare analysis of problem 2.}{}% 13
+\BOOKMARK [2][-]{subsection.3.1}{What are the fields \(i.e., member data, slots, etc.\) for the class? ...}{section.3}% 14
+\BOOKMARK [2][-]{subsection.3.2}{What are the methods for the class? ...}{section.3}% 15

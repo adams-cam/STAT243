@@ -1,0 +1,538 @@
+\documentclass{article}\usepackage[]{graphicx}\usepackage[]{color}
+%% maxwidth is the original width if it is less than linewidth
+%% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+\let\hlipl\hlkwb
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
+\title{Problem Set 2}
+\author{Cameron Adams}
+
+
+\usepackage{float, hyperref}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{sectsty}
+\usepackage{hyperref}
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\begin{document}
+
+%\SweaveOpts{concordance=TRUE}
+
+\maketitle
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlcom{##########}
+\hlcom{# Chunk 1: housekpeeing}
+\hlcom{##########}
+
+\hlkwd{rm}\hlstd{(}\hlkwc{list}\hlstd{=}\hlkwd{ls}\hlstd{())}
+
+\hlkwd{setwd}\hlstd{(}\hlstr{"/Users/CamAdams/repos/STAT243/ps2/"}\hlstd{)} \hlcom{#wd}
+\hlstd{knitr}\hlopt{::}\hlstd{opts_chunk}\hlopt{$}\hlkwd{set}\hlstd{(}\hlkwc{cache}\hlstd{=}\hlnum{TRUE}\hlstd{,}\hlkwc{background}\hlstd{=}\hlstr{"#F7F7F7"}\hlstd{)} \hlcom{#knitr global opts}
+
+\hlcom{#load packages}
+\hlkwd{require}\hlstd{(knitr)}
+\hlkwd{require}\hlstd{(curl)}
+\hlkwd{require}\hlstd{(XML)}
+\hlkwd{require}\hlstd{(testthat)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\begin{enumerate}
+\item This problem explores file sizes and their relationship to the file format. %problem 1
+
+\begin{enumerate}
+\item   \textbf{Problem 1a SOLUTION}  %problem 1a
+
+Flat text file tmp1.csv records the 1 million randomly generated letters as a vector (1 column matrix) of individual single character values. tmp2.csv collapsed the single character elements into one long string, and therefore is only coding one (long) element. Collapsing the single character elements removes newline characters, essentially, in this case removing half the file size.
+
+The tmp3.Rda file contains a numeric vector with one million values, stored in the R binary format. tmp4.csv  contains the same values in ASCII format. tmp5.csv contains the same values (rounded to the nearest 0.01) also in ASCII format. Because tmp4.csv was saved in ASCII format, it has the largest filesize; whereas tmp5.csv has the smallest filesize because each of the numeric values contains fewer digits. This file is smaller than tmp3.Rda and tmp4.csv simply because there are many million fewer characters in tmp5.csv than the other two files.
+
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlcom{##########}
+\hlcom{# Chunk 2: Question 1a code}
+\hlcom{#########}
+
+\hlcom{## save letters in text format}
+\hlstd{chars} \hlkwb{<-} \hlkwd{sample}\hlstd{(letters,} \hlnum{1e6}\hlstd{,} \hlkwc{replace} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlkwd{write.table}\hlstd{(chars,} \hlkwc{file} \hlstd{=} \hlstr{'tmp1.csv'}\hlstd{,} \hlkwc{row.names} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{quote} \hlstd{=} \hlnum{FALSE}\hlstd{,}
+\hlkwc{col.names} \hlstd{=} \hlnum{FALSE}\hlstd{)}
+\hlkwd{system}\hlstd{(}\hlstr{'ls -l tmp1.csv'}\hlstd{,} \hlkwc{intern} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlcom{## [1] "-rw-r--r-- 1 paciorek scfstaff 2000000 Sep 11 07:38 tmp1.csv"}
+\hlstd{chars} \hlkwb{<-} \hlkwd{paste}\hlstd{(chars,} \hlkwc{collapse} \hlstd{=} \hlstr{''}\hlstd{)}
+\hlkwd{write.table}\hlstd{(chars,} \hlkwc{file} \hlstd{=} \hlstr{'tmp2.csv'}\hlstd{,} \hlkwc{row.names} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{quote} \hlstd{=} \hlnum{FALSE}\hlstd{,}
+\hlkwc{col.names} \hlstd{=} \hlnum{FALSE}\hlstd{)}
+\hlkwd{system}\hlstd{(}\hlstr{'ls -l tmp2.csv'}\hlstd{,} \hlkwc{intern} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlcom{## [1] "-rw-r--r-- 1 paciorek scfstaff 1000001 Sep 11 07:38 tmp2.csv"}
+\hlcom{## save in binary format}
+\hlstd{nums} \hlkwb{<-} \hlkwd{rnorm}\hlstd{(}\hlnum{1e6}\hlstd{)}
+\hlkwd{save}\hlstd{(nums,} \hlkwc{file} \hlstd{=} \hlstr{'tmp3.Rda'}\hlstd{)}
+\hlkwd{system}\hlstd{(}\hlstr{'ls -l tmp3.Rda'}\hlstd{,} \hlkwc{intern} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlcom{## [1] "-rw-r--r-- 1 paciorek scfstaff 7678421 Sep 11 07:38 tmp3.Rda"}
+\hlcom{## save in text format}
+\hlkwd{write.table}\hlstd{(nums,} \hlkwc{file} \hlstd{=} \hlstr{'tmp4.csv'}\hlstd{,} \hlkwc{row.names} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{quote} \hlstd{=} \hlnum{FALSE}\hlstd{,}
+\hlkwc{col.names} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{sep} \hlstd{=} \hlstr{','}\hlstd{)}
+\hlkwd{system}\hlstd{(}\hlstr{'ls -l tmp4.csv'}\hlstd{,} \hlkwc{intern} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlcom{## [1] "-rw-r--r-- 1 paciorek scfstaff 18158912 Sep 11 07:38 tmp4.csv"}
+\hlkwd{write.table}\hlstd{(}\hlkwd{round}\hlstd{(nums,} \hlnum{2}\hlstd{),} \hlkwc{file} \hlstd{=} \hlstr{'tmp5.csv'}\hlstd{,} \hlkwc{row.names} \hlstd{=} \hlnum{FALSE}\hlstd{,}
+\hlkwc{quote} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{col.names} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{sep} \hlstd{=} \hlstr{','}\hlstd{)}
+\hlkwd{system}\hlstd{(}\hlstr{'ls -l tmp5.csv'}\hlstd{,} \hlkwc{intern} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlcom{## [1] "-rw-r--r-- 1 paciorek scfstaff 5379375 Sep 11 07:38 tmp5.csv"}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+
+
+\item  \textbf{Problem 1b SOLUTION}  %problem 1b
+
+In the below code, save() is being implemented with the default options, which writes data to R binary file format and compresses the data using gzip compression (level 6). Simply, tmp7.Rda is must smaller than tmp6.Rda because the tmp7.Rda data (one million $a$'s) is much more compressable than the tmp6.Rda data which is comprised of one million alphabetic characters in random order. Compressing a uniform sequence only requies saving on instance of teh sequence and how many times its repeated, while compressing a random sequence requires much more information.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlcom{##########}
+\hlcom{# Chunk 3: Question 1b code}
+\hlcom{#########}
+\hlstd{chars} \hlkwb{<-} \hlkwd{sample}\hlstd{(letters,} \hlnum{1e6}\hlstd{,} \hlkwc{replace} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlstd{chars} \hlkwb{<-} \hlkwd{paste}\hlstd{(chars,} \hlkwc{collapse} \hlstd{=} \hlstr{''}\hlstd{)}
+\hlkwd{save}\hlstd{(chars,} \hlkwc{file} \hlstd{=} \hlstr{'tmp6.Rda'}\hlstd{)}
+\hlkwd{system}\hlstd{(}\hlstr{'ls -l tmp6.Rda'}\hlstd{,} \hlkwc{intern} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlcom{## [1] "-rw-r--r-- 1 paciorek scfstaff 635237 Sep 11 07:38 tmp6.Rda"}
+\hlstd{chars} \hlkwb{<-} \hlkwd{rep}\hlstd{(}\hlstr{'a'}\hlstd{,} \hlnum{1e6}\hlstd{)}
+\hlstd{chars} \hlkwb{<-} \hlkwd{paste}\hlstd{(chars,} \hlkwc{collapse} \hlstd{=} \hlstr{''}\hlstd{)}
+\hlkwd{save}\hlstd{(chars,} \hlkwc{file} \hlstd{=} \hlstr{'tmp7.Rda'}\hlstd{)}
+\hlkwd{system}\hlstd{(}\hlstr{'ls -l tmp7.Rda'}\hlstd{,} \hlkwc{intern} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlcom{## [1] "-rw-r--r-- 1 paciorek scfstaff 1056 Sep 11 07:38 tmp7.Rda"}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+
+\end{enumerate} % end problem 1 sub questions
+\item  Go to https://scholar.google.com and enter the name ...% problem 2
+\begin{enumerate} % beign problem 2 sub questions
+
+\item \textbf{Problem 2a SOLUTION} %problem 2a
+
+The function \texttt{getCitations()}, takes as input, one character string: input=\texttt{Geoffrey Hinton} and returns the Google scholar ID: \texttt{JicYpdAAAAAJ}, and that person's citation page HTML.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlcom{##########}
+\hlcom{# Chunk 4: Question 2a code}
+\hlcom{#########}
+\hlcom{#URLs used }
+\hlcom{#https://scholar.google.com/}
+\hlcom{#https://scholar.google.com/scholar?hl=en&q=Geoffrey+Hinton&as_sdt=1%2C5&as_sdtp=&oq=}
+\hlcom{#https://scholar.google.com/citations?view_op=search_authors&mauthors=Geoffrey+Hinton&hl=en&oi=ao}
+
+\hlstd{getCitations} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{name}\hlstd{) \{}
+
+  \hlkwd{require}\hlstd{(testthat)}
+  \hlkwd{require}\hlstd{(stringr)}
+  \hlkwd{require}\hlstd{(curl)}
+  \hlkwd{require}\hlstd{(XML)}
+
+  \hlcom{#check if valid input}
+  \hlcom{#is character?}
+  \hlkwd{stopifnot}\hlstd{(}\hlkwd{test_that}\hlstd{(}\hlstr{"Input must be character string"}\hlstd{,}
+                      \hlkwd{expect_equal}\hlstd{(}\hlkwd{class}\hlstd{(name),} \hlstr{"character"}\hlstd{)))}
+  \hlcom{#is first last format?}
+  \hlkwd{stopifnot}\hlstd{(}\hlkwd{test_that}\hlstd{(}\hlstr{"input must be name: e.g.'Albert Einstein'"}\hlstd{,}
+                      \hlkwd{expect_true}\hlstd{(}\hlkwd{str_detect}\hlstd{(name,}
+                                             \hlstr{"^[[:Alpha:]]+ [[:Alpha:]]+$"}\hlstd{))))}
+
+  \hlcom{#get names}
+  \hlstd{name1} \hlkwb{=} \hlkwd{gsub}\hlstd{(}\hlstr{"([A-Za-z]*)[[:space:]]*([A-Za-z]*)[[:space:]]*([A-Za-z]*)"}\hlstd{,}\hlstr{"\textbackslash{}\textbackslash{}1"}\hlstd{,name)}
+  \hlstd{name2} \hlkwb{=} \hlkwd{gsub}\hlstd{(}\hlstr{"([A-Za-z]*)[[:space:]]*([A-Za-z]*)"}\hlstd{,}\hlstr{"\textbackslash{}\textbackslash{}2"}\hlstd{,name)}
+
+  \hlcom{#search for scholar}
+  \hlstd{url_name}   \hlkwb{=} \hlkwd{paste0}\hlstd{(name1,}\hlstr{"+"}\hlstd{,name2)} \hlcom{#name format for url search}
+  \hlstd{googleURL}  \hlkwb{=} \hlstr{"https://scholar.google.com/citations?view_op=search_authors&mauthors="}
+  \hlstd{searchURL}  \hlkwb{=} \hlkwd{paste0}\hlstd{(googleURL,url_name)} \hlcom{#search name}
+  \hlstd{html}       \hlkwb{=} \hlkwd{readLines}\hlstd{(searchURL,}\hlkwc{warn}\hlstd{=F)}
+  \hlstd{links}      \hlkwb{=} \hlkwd{getHTMLLinks}\hlstd{(html)}
+
+  \hlcom{#find Google Scholar ID}
+  \hlstd{citePage} \hlkwb{=} \hlkwd{grep}\hlstd{(}\hlstr{"user="}\hlstd{,links,}\hlkwc{value}\hlstd{=T)[}\hlnum{1}\hlstd{]} \hlcom{#get link for cite page}
+  \hlstd{id}       \hlkwb{=} \hlkwd{gsub}\hlstd{(}\hlstr{".*([A-Za-z0-9-]\{12\})&.*"}\hlstd{,}\hlstr{"\textbackslash{}\textbackslash{}1"}\hlstd{,citePage)} \hlcom{#Gscholar id}
+
+  \hlcom{#check if google scholar ID is valid}
+  \hlkwd{stopifnot}\hlstd{(}\hlkwd{test_that}\hlstd{(}\hlstr{"Invalid, or no google scholar ID for input."}\hlstd{,}
+                      \hlkwd{expect_true}\hlstd{(}\hlkwd{str_detect}\hlstd{(id,}\hlstr{"^[A-Za-z0-9-]\{12\}$"}\hlstd{))))}
+
+  \hlcom{#get citation page}
+  \hlstd{citePageURL}  \hlkwb{=} \hlkwd{paste0}\hlstd{(}\hlstr{"https://scholar.google.com"}\hlstd{,citePage)} \hlcom{#citation page}
+  \hlstd{citePageHTML} \hlkwb{=} \hlkwd{readLines}\hlstd{(citePageURL,}\hlkwc{warn}\hlstd{=F)} \hlcom{#get HTML for citation page}
+  \hlkwd{Sys.sleep}\hlstd{(}\hlnum{2}\hlstd{)} \hlcom{# pause to prevent capcha}
+
+  \hlcom{#return scholar it, cit page HTML, and the user input}
+  \hlkwd{return}\hlstd{(}\hlkwd{list}\hlstd{(}\hlkwc{id}           \hlstd{= id,}
+              \hlkwc{citePageHTML} \hlstd{= citePageHTML,}
+              \hlkwc{input}        \hlstd{= name))} \hlcom{#return google scholar ID and citation page HTML}
+\hlstd{\}}
+
+\hlcom{#test function}
+  \hlstd{testName} \hlkwb{=} \hlstr{"Geoffrey Hinton"} \hlcom{#user input}
+  \hlstd{out1}     \hlkwb{=} \hlkwd{getCitations}\hlstd{(testName)} \hlcom{#run function}
+    \hlkwd{attributes}\hlstd{(out1)} \hlcom{#attributes of getCitations output}
+\end{alltt}
+\begin{verbatim}
+## $names
+## [1] "id"           "citePageHTML" "input"
+\end{verbatim}
+\begin{alltt}
+    \hlstd{out1}\hlopt{$}\hlstd{id} \hlcom{#scholar ID}
+\end{alltt}
+\begin{verbatim}
+## [1] "JicYPdAAAAAJ"
+\end{verbatim}
+\begin{alltt}
+    \hlstd{out1}\hlopt{$}\hlstd{input} \hlcom{#user input}
+\end{alltt}
+\begin{verbatim}
+## [1] "Geoffrey Hinton"
+\end{verbatim}
+\begin{alltt}
+    \hlkwd{substr}\hlstd{(out1}\hlopt{$}\hlstd{citePageHTML,}\hlkwc{start}\hlstd{=}\hlnum{0}\hlstd{,}\hlkwc{stop}\hlstd{=}\hlnum{40}\hlstd{)} \hlcom{#first html 40 characters}
+\end{alltt}
+\begin{verbatim}
+## [1] "<!doctype html><head><meta http-equiv=\"C"
+\end{verbatim}
+\begin{alltt}
+  \hlcom{#error checking}
+  \hlstd{testError} \hlkwb{=} \hlkwd{c}\hlstd{(}\hlstr{"Cameron Adams"}\hlstd{,}
+              \hlstr{"Geoffrey"}\hlstd{,}
+              \hlstr{"A1b3rt Einstein"}\hlstd{)}
+  \hlstd{outError1} \hlkwb{=} \hlkwd{getCitations}\hlstd{(testError[}\hlnum{1}\hlstd{])} \hlcom{#Error: person has no scholar ID}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error: Test failed: 'Invalid, or no google scholar ID for input.'\\\#\# * str\_detect(id, "{}\textasciicircum{}[A-Za-z0-9-]\{12\}\$"{}) isn't true.}}\begin{alltt}
+  \hlstd{outError2} \hlkwb{=} \hlkwd{getCitations}\hlstd{(testError[}\hlnum{2}\hlstd{])} \hlcom{#Error: only one name}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error: Test failed: 'input must be name: e.g.'Albert Einstein''\\\#\# * str\_detect(name, "{}\textasciicircum{}[[:Alpha:]]+ [[:Alpha:]]+\$"{}) isn't true.}}\begin{alltt}
+  \hlstd{outError3} \hlkwb{=} \hlkwd{getCitations}\hlstd{(testError[}\hlnum{3}\hlstd{])} \hlcom{#Error: numeric characters}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error: Test failed: 'input must be name: e.g.'Albert Einstein''\\\#\# * str\_detect(name, "{}\textasciicircum{}[[:Alpha:]]+ [[:Alpha:]]+\$"{}) isn't true.}}\end{kframe}
+\end{knitrout}
+
+
+
+
+\item \textbf{Problem 2b ANSWER} %problem 2b
+
+The function \texttt{processCitations()}, takes as input, the HTML for the citation page from \texttt{getCitations()} and returns a table of their first 20 citations on google scholar.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlcom{###########}
+\hlcom{# Chunk 5: Question 2b code}
+\hlcom{###########}
+
+\hlstd{processCitations} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{html}\hlstd{) \{}
+  \hlkwd{require}\hlstd{(XML)}
+  \hlcom{#check ifinput is character string}
+  \hlkwd{stopifnot}\hlstd{(}\hlkwd{test_that}\hlstd{(}\hlstr{"Input must be HTML code as character string"}\hlstd{,}
+                      \hlkwd{expect_equal}\hlstd{(}\hlkwd{class}\hlstd{(html),} \hlstr{"character"}\hlstd{)))} \hlcom{# is.character?}
+
+  \hlcom{#html=out1$citePageHTML #test}
+
+  \hlcom{#scrape citations using XML}
+  \hlstd{tmp}  \hlkwb{=} \hlkwd{htmlParse}\hlstd{(html)} \hlcom{#parse html string}
+  \hlstd{tmp2} \hlkwb{=} \hlkwd{getNodeSet}\hlstd{(tmp,}\hlstr{"//table"}\hlstd{)} \hlcom{#get table nodes}
+  \hlstd{tmp3} \hlkwb{=} \hlkwd{xmlToList}\hlstd{(tmp2[[}\hlnum{2}\hlstd{]])} \hlcom{#convert to list}
+  \hlstd{tbl}  \hlkwb{=} \hlstd{tmp3}\hlopt{$}\hlstd{tbody} \hlcom{#extract table }
+
+  \hlcom{#extract title, author, journal info}
+  \hlstd{title}\hlkwb{<-}\hlstd{author}\hlkwb{<-}\hlstd{journal}\hlkwb{<-}\hlstd{year}\hlkwb{<-}\hlstd{citations}\hlkwb{<-}\hlkwd{list}\hlstd{()} \hlcom{#empty lists for cite fields}
+  \hlstd{tbl_rows}\hlkwb{=}\hlkwd{length}\hlstd{(tbl)}\hlopt{-}\hlnum{1} \hlcom{#num citations}
+  \hlkwa{for} \hlstd{(i} \hlkwa{in} \hlnum{1}\hlopt{:}\hlstd{tbl_rows) \{}
+    \hlstd{title[[i]]}      \hlkwb{=} \hlstd{tbl[[i]][[}\hlnum{1}\hlstd{]]}\hlopt{$}\hlstd{a}\hlopt{$}\hlstd{text}
+    \hlstd{author[[i]]}     \hlkwb{=} \hlstd{tbl[[i]][[}\hlnum{1}\hlstd{]][[}\hlnum{2}\hlstd{]]}\hlopt{$}\hlstd{text}
+    \hlstd{journal[[i]]}    \hlkwb{=} \hlstd{tbl[[i]][[}\hlnum{1}\hlstd{]][[}\hlnum{3}\hlstd{]][[}\hlnum{1}\hlstd{]]}
+    \hlstd{citations[[i]]}  \hlkwb{=} \hlstd{tbl[[i]][[}\hlnum{2}\hlstd{]]}\hlopt{$}\hlstd{a}\hlopt{$}\hlstd{text}
+    \hlstd{year[[i]]}       \hlkwb{=} \hlstd{tbl[[i]][[}\hlnum{3}\hlstd{]][[}\hlnum{1}\hlstd{]][[}\hlnum{1}\hlstd{]]}
+  \hlstd{\}}
+
+  \hlcom{#combine into table}
+  \hlstd{output}\hlkwb{=}\hlkwd{data.frame}\hlstd{(}\hlkwc{title}     \hlstd{=} \hlkwd{unlist}\hlstd{(title),}
+                    \hlkwc{author}    \hlstd{=} \hlkwd{unlist}\hlstd{(author),}
+                    \hlkwc{journal}   \hlstd{=} \hlkwd{unlist}\hlstd{(journal),}
+                    \hlkwc{year}      \hlstd{=} \hlkwd{unlist}\hlstd{(year),}
+                    \hlkwc{citations} \hlstd{=} \hlkwd{unlist}\hlstd{(citations))}
+
+  \hlkwd{return}\hlstd{(output)}
+  \hlkwd{Sys.sleep}\hlstd{(}\hlnum{2}\hlstd{)} \hlcom{#pause to prevent google from adding capcha}
+\hlstd{\}}
+
+\hlcom{#test output}
+  \hlstd{out1tbl}\hlkwb{=}\hlkwd{processCitations}\hlstd{(out1}\hlopt{$}\hlstd{citePageHTML)} \hlcom{#input citation page HTML from getCitations()}
+    \hlkwd{dim}\hlstd{(out1tbl)} \hlcom{#table dimensions}
+\end{alltt}
+\begin{verbatim}
+## [1] 20  5
+\end{verbatim}
+\begin{alltt}
+    \hlkwd{head}\hlstd{(out1tbl)} \hlcom{#first few lines}
+\end{alltt}
+\begin{verbatim}
+##                                                             title
+## 1             Learning representations by back-propagating errors
+## 2          Learning internal representations by error-propagation
+## 3          Learning internal representations by error propagation
+## 4                                 Parallel distributed processing
+## 5 Imagenet classification with deep convolutional neural networks
+## 6                  A fast learning algorithm for deep belief nets
+##                                            author
+## 1            DE Rumelhart, GE Hinton, RJ Williams
+## 2            DE Rumelhart, GE Hinton, RJ Williams
+## 3            DE Rumelhart, GE Hinton, RJ Williams
+## 4 DE Rumelhart, JL McClelland, PDP Research Group
+## 5            A Krizhevsky, I Sutskever, GE Hinton
+## 6                   GE Hinton, S Osindero, YW Teh
+##                                                                      journal
+## 1                                                        Nature 323, 533-536
+## 2 Parallel Distributed Processing: Explorations in the Microstructure of ...
+## 3                                CALIFORNIA UNIV SAN DIEGO LA JOLLA INST FOR
+## 4                                                           MIT press 1, 184
+## 5               Advances in neural information processing systems, 1097-1105
+## 6                                       Neural computation 18 (7), 1527-1554
+##   year citations
+## 1 1986     34900
+## 2 1986     27417
+## 3 1985     23094
+## 4 1987     18726
+## 5 2012     15040
+## 6 2006      6618
+\end{verbatim}
+\begin{alltt}
+\hlcom{#test on different researcher}
+  \hlcom{#get citations}
+  \hlstd{out2}\hlkwb{=}\hlkwd{getCitations}\hlstd{(}\hlstr{"Geoffrey Burnstock"}\hlstd{)}
+    \hlstd{out2}\hlopt{$}\hlstd{id} \hlcom{#scholar id}
+\end{alltt}
+\begin{verbatim}
+## [1] "-T-OJAIAAAAJ"
+\end{verbatim}
+\begin{alltt}
+    \hlstd{out2}\hlopt{$}\hlstd{input} \hlcom{#user input}
+\end{alltt}
+\begin{verbatim}
+## [1] "Geoffrey Burnstock"
+\end{verbatim}
+\begin{alltt}
+    \hlkwd{substr}\hlstd{(out2}\hlopt{$}\hlstd{citePageHTML,}\hlkwc{start}\hlstd{=}\hlnum{0}\hlstd{,}\hlkwc{stop}\hlstd{=}\hlnum{40}\hlstd{)} \hlcom{#first html 40 characters}
+\end{alltt}
+\begin{verbatim}
+## [1] "<!doctype html><head><meta http-equiv=\"C"
+\end{verbatim}
+\begin{alltt}
+  \hlcom{#get citation table}
+  \hlstd{out2tbl}\hlkwb{=}\hlkwd{processCitations}\hlstd{(out2}\hlopt{$}\hlstd{citePageHTML)}
+    \hlkwd{dim}\hlstd{(out2tbl)}
+\end{alltt}
+\begin{verbatim}
+## [1] 20  5
+\end{verbatim}
+\begin{alltt}
+    \hlkwd{head}\hlstd{(out2tbl)}
+\end{alltt}
+\begin{verbatim}
+##                                                               title
+## 1                             Receptors for purines and pyrimidines
+## 2                                                 Purinergic nerves
+## 3                 Nomenclature and classification of purinoceptors.
+## 4 Is there a basis for distinguishing two types of P2-purinoceptor?
+## 5    Physiology and pathophysiology of purinergic neurotransmission
+## 6       A basis for distinguishing two types of purinergic receptor
+##                                                             author
+## 1                                           V Ralevic, G Burnstock
+## 2                                                      G Burnstock
+## 3 BB Fredholm, MP Abbracchio, G Burnstock, JW Daly, TK Harden, ...
+## 4                                           G Burnstock, C Kennedy
+## 5                                                      G Burnstock
+## 6                                                      G Burnstock
+##                                                                            journal
+## 1                                          Pharmacological reviews 50 (3), 413-492
+## 2                                          Pharmacological reviews 24 (3), 509-581
+## 3                                          Pharmacological reviews 46 (2), 143-156
+## 4                        General Pharmacology: The Vascular System 16 (5), 433-440
+## 5                                            Physiological reviews 87 (2), 659-797
+## 6 Cell membrane receptors for drugs and hormones: a multidisciplinary approach ...
+##   year citations
+## 1 1998      4243
+## 2 1972      2418
+## 3 1994      1748
+## 4 1985      1332
+## 5 2007      1267
+## 6 1978      1196
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+\item Incorporated into answers for $2(a)$ and $2(b)$. %problem 2c
+
+\item \textbf{Problem 2b ANSWER} %problem 2d
+
+EXTRA CREDIT. When you click \textit{SHOW MORE}, you can get the user profile citation page to show 100 citations per page: 0-100, 100-200, 200-300, etc: \url{https://scholar.google.com/citations?user=JicYPdAAAAAJ&hl=en&cstart=0&pagesize=100}. So we must specificy an intial start and pagesize values (0,100) and then iterate (start$_i$=start$_i$+100) until we reach the end of the available citations and google scholar no longer produces an html table.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlcom{###########}
+\hlcom{# Chunk 6: Question 2d code}
+\hlcom{###########}
+
+\hlstd{processCitationsALL} \hlkwb{=} \hlkwa{function}\hlstd{(}\hlkwc{id}\hlstd{) \{}
+
+  \hlkwd{library}\hlstd{(XML)}
+
+  \hlcom{# pull html from first page of google scholar id}
+  \hlstd{googleURL}  \hlkwb{=} \hlstr{"https://scholar.google.com/citations?user="}
+  \hlstd{start}      \hlkwb{=} \hlnum{0}
+  \hlstd{pagesize}   \hlkwb{=} \hlnum{100}
+  \hlstd{id}         \hlkwb{=} \hlstd{id} \hlcom{#google scholar id}
+  \hlstd{searchURL}  \hlkwb{=} \hlkwd{paste0}\hlstd{(googleURL,}
+                      \hlstd{id,}
+                      \hlstr{"&hl=en&cstart="}\hlstd{,}
+                      \hlstd{start,}
+                      \hlstr{"&pagesize="}\hlstd{,}
+                      \hlstd{pagesize)}
+  \hlstd{html}\hlkwb{=}\hlkwd{readLines}\hlstd{(searchURL,}\hlkwc{warn}\hlstd{=F)}
+
+
+  \hlcom{#create while loop to iterate scraping of citations until no more citations}
+  \hlstd{htmlTable} \hlkwb{=} \hlkwa{NULL} \hlcom{#start with empty html table data}
+  \hlstd{tbl} \hlkwb{=} \hlkwd{data.frame}\hlstd{()}  \hlcom{#start with empty table dataframe}
+  \hlkwa{while}\hlstd{(}\hlkwd{is.null}\hlstd{(htmlTable)) \{}
+
+    \hlcom{#get table and append to existing table data}
+    \hlstd{tmp}   \hlkwb{=} \hlkwd{processCitations}\hlstd{(html)} \hlcom{# get table}
+    \hlstd{tbl}   \hlkwb{=} \hlkwd{rbind}\hlstd{(tbl, tmp)} \hlcom{# append to existing table data}
+
+    \hlcom{# pull html for next page of 100 papers}
+    \hlstd{start} \hlkwb{=} \hlstd{start}\hlopt{+}\hlnum{100}  \hlcom{#update start position}
+    \hlstd{searchURL} \hlkwb{=} \hlkwd{paste0}\hlstd{(googleURL,}
+                      \hlstd{id,}
+                      \hlstr{"&hl=en&cstart="}\hlstd{,}
+                      \hlstd{start,}
+                      \hlstr{"&pagesize="}\hlstd{,}
+                      \hlstd{pagesize)}
+    \hlstd{html}\hlkwb{=}\hlkwd{readLines}\hlstd{(searchURL,}\hlkwc{warn}\hlstd{=F)}
+    \hlstd{htmlTable} \hlkwb{=} \hlkwd{xmlToList}\hlstd{(}\hlkwd{getNodeSet}\hlstd{(}\hlkwd{htmlParse}\hlstd{(html),}
+                                     \hlstr{"//table"}\hlstd{)[[}\hlnum{2}\hlstd{]])}\hlopt{$}\hlstd{tbody[[}\hlnum{1}\hlstd{]]}\hlopt{$}\hlstd{td}\hlopt{$}\hlstd{text}
+    \hlkwd{Sys.sleep}\hlstd{(}\hlnum{2}\hlstd{)} \hlcom{#pause to prevent google from adding capcha}
+  \hlstd{\}}
+  \hlkwd{return}\hlstd{(tbl)} \hlcom{# return table of all papers on google scholar page}
+\hlstd{\}}
+
+\hlcom{#test with Geoffrey Burnstock data.}
+\hlstd{tblAll}\hlkwb{=}\hlkwd{processCitationsALL}\hlstd{(out2}\hlopt{$}\hlstd{id)}
+  \hlkwd{dim}\hlstd{(tblAll)}
+\end{alltt}
+\begin{verbatim}
+## [1] 2032    5
+\end{verbatim}
+\begin{alltt}
+  \hlkwd{head}\hlstd{(tblAll)}
+\end{alltt}
+\begin{verbatim}
+##                                                               title
+## 1                             Receptors for purines and pyrimidines
+## 2                                                 Purinergic nerves
+## 3                 Nomenclature and classification of purinoceptors.
+## 4 Is there a basis for distinguishing two types of P2-purinoceptor?
+## 5    Physiology and pathophysiology of purinergic neurotransmission
+## 6       A basis for distinguishing two types of purinergic receptor
+##                                                             author
+## 1                                           V Ralevic, G Burnstock
+## 2                                                      G Burnstock
+## 3 BB Fredholm, MP Abbracchio, G Burnstock, JW Daly, TK Harden, ...
+## 4                                           G Burnstock, C Kennedy
+## 5                                                      G Burnstock
+## 6                                                      G Burnstock
+##                                                                            journal
+## 1                                          Pharmacological reviews 50 (3), 413-492
+## 2                                          Pharmacological reviews 24 (3), 509-581
+## 3                                          Pharmacological reviews 46 (2), 143-156
+## 4                        General Pharmacology: The Vascular System 16 (5), 433-440
+## 5                                            Physiological reviews 87 (2), 659-797
+## 6 Cell membrane receptors for drugs and hormones: a multidisciplinary approach ...
+##   year citations
+## 1 1998      4243
+## 2 1972      2418
+## 3 1994      1748
+## 4 1985      1332
+## 5 2007      1267
+## 6 1978      1196
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+
+\end{enumerate} % end problem 2 sub questions
+
+\end{enumerate} %end main problem list
+
+
+\end{document}
