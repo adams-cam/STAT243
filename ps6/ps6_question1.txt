@@ -7,8 +7,17 @@ Q1.
 
 The goals of the simulation study are to investigate the finite sample properties of the test. The authors used differences in significance levels for differing values of D (difference in mean of normal distributions in mixture distribution), while varying sample size and mixture proportion. 
 
-As stated above, the authors 
 • What choices did the authors have to make in designing their simulation study? What are the key aspects of the data generating mechanism that likely affect the statistical power of the test? Are there data-generating scenarios that the authors did not consider that would be useful to consider?
+
+As stated above, the authors, make choices about mixture proportion, sample size, and nominal significance. The mixture proportion and difference in means likely affects the statistical power of the test. The authors did not consider sceenarios with normal distributions with different variances, only different norms. Seems likely there would be scenarios where there is a mixture of distributions
+
+
 • Do their tables do a good job of presenting the simulation results and do you have any alternative suggestions for how to do this?
+
+The tables are confusing, I would like to see plots rather than tables. It would hvae been interesting to see how simulations perform across a distribution of mixture proportions, rather than a few discrete vaules (e.g, 0.5, 0.7, etc).
+
 • Interpret their tables on power (Tables 2 and 4) - do the results make sense in terms of how the power varies as a function of the data generating mechanism?
+
+
 • How do you think the authors decided to use 1000 simulations. Would 10 simulations be enough? How might we decide if 1000 simulations is enough?
+
