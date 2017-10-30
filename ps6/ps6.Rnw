@@ -1,0 +1,343 @@
+\documentclass{article}
+\title{Problem Set 6}
+\author{Cameron Adams}
+
+
+\usepackage{float, hyperref}
+\usepackage[margin = 1in]{geometry}
+\usepackage{graphicx}
+\usepackage{sectsty}
+\usepackage{hyperref}
+\usepackage{amsmath}
+
+\begin{document}
+%\SweaveOpts{concordance=TRUE}
+
+\maketitle
+
+
+
+<<echo = F>>=
+rm(list = ls())
+
+#set working dir
+setwd("/Users/CamAdams/repos/STAT243/ps6/")
+
+#load packages
+require(RCurl)
+require(stringr)
+require(pryr)
+require(microbenchmark)
+
+#set gobal chunk options
+knitr::opts_chunk$set(cache=F,
+                      background='#F7F7F7',
+                      results='markup')
+
+@
+
+%Q1
+
+\section{For this question you will read a journal article ...}
+
+\subsection{What are the goals of their simulation study and what are the metrics that they consider in assessing their method?}
+
+The goal of the simulation is to investiagte the finite sample properties of the proposed test. They are using simulated power and significance levels to assess method performance given different mixture proportions, D, etc.
+
+\subsection{What choices did the authors have to make in designing their simulation study? What are the key aspects of the data generating mechanism that likely affect the statistical power of the test? Are there data-generating scenarios that the authors did not consider that would be useful to consider?}
+
+Mixture proportions, D (differenc means between guassian distributions), norminal $\alpha$, and sample size. ?
+
+
+\subsection{Do their tables do a good job of presenting the simulation results and do you have any alternative suggestions for how to do this?}
+
+\subsection{Interpret their tables on power (Tables 2 and 4) - do the results make sense in terms of how the power varies as a function of the data generating mechanism?}
+
+\subsection{How do you think the authors decided to use 1000 simulations. Would 10 simulations be enough? How might we decide if 1000 simulations is enough?}
+
+
+\section{Using the Stack Overflow database (http://www.stat.berkeley.edu/share/paciorek/stackoverflow-2016.db), write SQL code that will determine which users have asked only R-related questions and no Pythonrelated questions. Those of you with more experience with SQL might do this in a single query, but it’s perfectly fine to create one or more views and then use those views to get the result as a subsequent query. Report how many unique such users there are based on running your query from either R or Python. The Stack Overflow SQLite database is ~ 650 MB on disk, which should be manageable on most of your laptops, but if you run into problems, you can use an SCF machine or Savio (in the latter case you’ll need to install the RSQLite package).}
+%1
+
+<<prob2>>=
+
+rm(list = ls())
+
+library(RSQLite)
+
+###############
+# load SQL database
+
+#set SQL db driver
+drv <- dbDriver("SQLite")
+
+#connec to db
+dir <- "/Users/CamAdams/repos/STAT243/ps6/" # path to where the .db file is
+dbFilename <- 'stackoverflow-2016.db'
+db <- dbConnect(drv, dbname = file.path(dir, dbFilename))
+
+#########
+# write SQL code that will determine 
+# which users have asked only R-related questions and no Python related questions
+
+
+# simple query to get 5 rows from a table
+#dbGetQuery(db, "select * from questions limit 5")  
+
+dbListTables(db)
+
+dbListFields(db, "users")
+
+dbListFields(db, "questions")
+
+dbListFields(db, "questions_tags")
+
+dbListFields(db, "answers")
+
+dbListFields(db, "questionsAugment")
+
+dbGetQuery(db, "select python from questions_tag limit 5") 
+
+dbGetQuery(db, "select * from users limit 5") 
+dbGetQuery(db, "select * from questions limit 5") 
+dbGetQuery(db, "select * from answers limit 5") 
+dbGetQuery(db, "select * from questions_tags limit 5") 
+dbGetQuery(db, "select * from questionsAugment limit 5") 
+
+
+
+
+#three way join between questions, questions_tags, and questionsAugment on 
+#question id
+results <- dbGetQuery(db, "SELECT * from questions, questions_tags, questionsAugment 
+            WHERE questions.questionid = questions_tags.questionid 
+            AND questionsAugment.questionid = questions.questionid 
+            AND tag != 'python' AND tag = 'r'")
+
+dim(results)
+
+#extract unique display names who asked R questions only
+displayname <- unique(results$displayname)
+length(displayname)
+
+
+@
+
+%q3
+<<>>=
+
+module load r/3.2.5
+which R
+
+
+
+########
+# R Code
+
+
+if(!require(sparklyr)) {
+    install.packages("sparklyr")
+    spark_install(version = "2.2.0")
+}
+
+## config.yml has driver-memory set -- need some GB for driver
+## or read_csv will be out-of-memory and/or slow down
+readLines('config.yml')
+
+### connect to Spark ###
+
+sc <- spark_connect(master = "local")
+# sc <- spark_connect(master = Sys.getenv("SPARK_MASTER")) # non-local 
+
+cols <- c(date = 'numeric', hour = 'numeric', lang = 'character',
+          page = 'character', hits = 'numeric', size = 'numeric')
+          
+
+## takes a while even with only 1.4 GB (zipped) input data (100 sec.)
+## copy from /scratch/users/paciorek/wikistats/dated" to /tmp/wiki 
+wiki <- spark_read_csv(sc, "wikistats", "/tmp/wiki",
+                       header = FALSE, delimiter = ' ',
+                       columns = cols, infer_schema = FALSE)
+
+
+@
+
+<<python>>=
+
+srun -A ic_stat243 -p savio2 --nodes=4 -t 1:00:00 --pty bash
+module load java spark
+source /global/home/groups/allhands/bin/spark_helper.sh
+spark-start
+## note the environment variables created
+env | grep SPARK
+
+
+
+module load python/2.7.8 numpy
+pyspark --master $SPARK_URL --executor-memory 60G \
+--conf "spark.executorEnv.PATH=${PATH}" \
+--conf "spark.executorEnv.LD_LIBRARY_PATH=${LD_LIBRARY_PATH}"
+\
+--conf "spark.executorEnv.PYTHONPATH=${PYTHONPATH}"
+
+
+
+
+#####
+# python code
+dir = '/global/scratch/paciorek/wikistats'
+dir = "/global/scratch/paciorek/wikistats/dated/"
+
+### read data and do some checks ###
+#lines = sc.textFile(dir + '/' + 'dated')
+lines = sc.textFile(dir)
+lines.getNumPartitions() # 17/10/27 03:49:40 INFO FileInputFormat: Total input paths to process : 192
+
+
+lines.count() # 17/10/27 03:55:19 INFO DAGScheduler: ResultStage 0 (count at <stdin>:1) finished in 167.911 s
+#17/10/27 03:55:19 INFO TaskSchedulerImpl: Removed TaskSet 0.0, whose tasks have all completed, from pool 
+#17/10/27 03:55:19 INFO DAGScheduler: Job 0 finished: count at <stdin>:1, took 167.999035 s
+testLines = lines.take(10)
+testLines[0]
+#u'20081104 110000 commons.m Image:Quinten_Metsys-Triptique_de_la_confrerie_Saint-Anne_a_Louvain_mg_2990.jpg 1 9789'
+
+testLines[9]
+#u'20081104 110000 commons.m Image:Quit_India_Movement.ogg 1 8669'
+
+### filter to sites of interest ###
+import re
+from operator import add
+
+def find(line, regex = "", language = None):
+    vals = line.split(' ')
+    if len(vals) < 6:
+        return(False)
+    tmp = re.search(regex, vals[3])
+    if tmp is None or (language != None and vals[2] != language):
+        return(False)
+    else:
+        return(True)
+    
+    
+@
+
+
+%q4a
+
+<<>>=
+    
+#srun -A ic_stat243 -p savio2  --nodes=1 -t 60:00 --pty bash
+#env | grep SLURM  ## see what environment variables are set by SLURM
+
+
+module load r/3.2.5 doParallel/1.0.10 ggplot2/2.1.0 RColorBrewer/1.1-2 stringr/1.0.0 plyr/1.8.3 dplyr/0.4.3  foreach/1.4.3  
+    
+####
+# bash script for SBATCH
+ 
+#!/bin/bash
+# Job name:
+#SBATCH --job-name=BO_mataches
+#
+# Account:
+#SBATCH --account=ic_stat243
+#
+# Partition:
+#SBATCH --partition=savio2
+#
+# Wall clock limit (10 min here):
+#SBATCH --time=00:60:00
+#
+## Command(s) to run:
+
+module load r/3.2.5 doParallel/1.0.10 foreach/1.4.3  
+
+R CMD BATCH --no-save BO_matches.R BO_matches.Rout 
+
+
+####
+# R script
+    
+rm(list=ls())
+
+#load packages
+require(readr)
+
+#get files in directory
+dir <- "/global/scratch/paciorek/wikistats_full/dated_for_R/"
+files <- list.files(dir)
+
+#remove uneeded files
+files <- files[grepl("part", files)]
+
+#set file paths
+filePaths <- paste0(dir, files)
+
+#set read_delim progress bar options
+#options(readr.show_progress = F)
+
+#get num cores
+nCores <- 24 #Sys.getenv("SLURM_CPUS_ON_NODE")
+nCores
+
+require(parallel)
+require(doParallel)
+require(foreach)
+
+#initialize cores
+registerDoParallel(nCores)
+
+#set iterations
+nSub <- length(filePaths) 
+
+system.time(
+result <- foreach(i = 1:nSub,
+                  .packages = c("readr"),       # libraries to load onto each worker
+                  .combine = rbind,             # how to combine results
+                  .errorhandling=c("pass"),
+                  .verbose = TRUE) %dopar% {
+
+    dat <- readr::read_delim(filePaths[i], delim = " ", col_names = F)
+    
+    cat("iteration ", i, " is complete!! :)")
+    
+    dat[grep("Barack_Obama", dat$X4, fixed = T), ]
+                  }
+)
+
+str(result)
+head(result)
+tail(result)
+dim(result)
+
+write.csv(result, "/global/home/users/camadams/ps6_BOmatches.csv",
+          row.names = F, quote = F)  
+@
+
+
+%4b
+
+
+%4c
+
+
+
+%question 5a, 5b
+
+https://math.stackexchange.com/questions/217738/how-to-calculate-the-cost-of-cholesky-decomposition
+https://www.youtube.com/watch?v=NppyUqgQqd0
+https://rosettacode.org/wiki/Cholesky_decomposition#R
+
+<<knit,eval=F,echo=F>>=
+###########
+#knit2pdf
+rm(list=ls())
+require(knitr)
+setwd("/Users/CamAdams/repos/STAT243/ps5/") 
+#Sweave2knitr("./ps3.rnw")
+knit2pdf(input = "ps5.Rnw", output = "ps5.tex")
+@
+
+
+\end{document}
+
