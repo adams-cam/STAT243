@@ -426,13 +426,7 @@ R code to analyze world series data from wikipedia
 \hlcom{#order data by date}
 \hlstd{ws} \hlkwb{<-} \hlstd{ws[}\hlkwd{order}\hlstd{(ws}\hlopt{$}\hlstd{V1), ]}
 
-\hlcom{#plot all teh data x=date, y = hits for "Daylight_saving_time"}
-
-
-\hlcom{#plot data according to by date}
-\hlstd{ws_eng} \hlkwb{<-} \hlstd{ws[ws}\hlopt{$}\hlstd{V3} \hlopt{==} \hlstr{"en"}\hlstd{, ]}
-\hlstd{ws_ca} \hlkwb{<-} \hlstd{ws[ws}\hlopt{$}\hlstd{V3} \hlopt{==} \hlstr{"ca"}\hlstd{, ]}
-
+\hlcom{#plot hits by date}
 \hlkwd{par}\hlstd{(}\hlkwc{mfrow}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{2}\hlstd{,}\hlnum{2}\hlstd{),} \hlkwc{mar} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,}\hlnum{4}\hlstd{,}\hlnum{4}\hlstd{,}\hlnum{1}\hlstd{))}
 \hlkwd{plot}\hlstd{(ws}\hlopt{$}\hlstd{V1, ws}\hlopt{$}\hlstd{V4,} \hlkwc{type} \hlstd{=} \hlstr{'l'}\hlstd{,}
      \hlkwc{main} \hlstd{=} \hlstr{"All Languages"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Hits"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{"Date"}\hlstd{,} \hlkwc{xaxt} \hlstd{=} \hlstr{"n"}\hlstd{)}
@@ -573,13 +567,13 @@ R script used to answer quesiton 4a) is below.
 \end{kframe}
 \end{knitrout}
 
-It took 4497.273 sec ~ 75 min of "clock" time to run the Barack Obama script on 960 files with 1 node/24cores. 
+It took 4497.273 sec $\sim$ 75 min of "clock" time to run the Barack Obama script on 960 files with 1 node/24cores. 
 %4b
 
 
 \subsection{When I run the Spark code provided with Unit 8, it takes ~15 minutes using 9...}
 
-We can approximate the amount of real time by taking the total kernal time it took to run the barack obama object (user time + system time) and divide it by teh number of processes/cores we are using for the parallel operations. Therefore $(4082.902 + 72954.630 ) / (24 \times 4) ~ 16.85$ min. This compares favorably to spark, though it is a bit slower. 16.85 min is likely an under estiamte, and it would likely take a little longer than the estimate. 
+We can approximate the amount of real time by taking the total kernal time it took to run the barack obama object (user time + system time) and divide it by teh number of processes/cores we are using for the parallel operations. Therefore $(4082.902 + 72954.630 ) / (24 \times 4) = 16.85$ min. This compares favorably to spark, though it is a bit slower. 16.85 min is likely an under estiamte, and it would likely take a little longer than the estimate. 
 
 
 \begin{knitrout}
@@ -604,9 +598,9 @@ We can approximate the amount of real time by taking the total kernal time it to
 \hlcom{#... same code as in 4a}
 
 
-\hlcom{#turn off preschedule and have dynamic allocation}
+\hlcom{#turn off preschedule and employ dynamic allocation}
 \hlstd{mcoptions} \hlkwb{<-} \hlkwd{list}\hlstd{(}\hlkwc{preschedule}\hlstd{=}\hlnum{FALSE}\hlstd{)}
-\hlstd{nSub} \hlkwb{<-} \hlstd{nSub}\hlopt{/}\hlnum{8}
+\hlstd{nSub} \hlkwb{<-} \hlstd{nSub}\hlopt{/}\hlnum{8} \hlcom{#takes too long to run full data}
 \hlstd{nSub}
 \hlcom{#120}
 
@@ -629,14 +623,30 @@ We can approximate the amount of real time by taking the total kernal time it to
  \hlcom{#4159.053 14686.835   828.382 }
 \hlstd{(}\hlnum{828.382} \hlopt{*} \hlnum{8}\hlstd{)} \hlopt{/} \hlnum{60} \hlcom{#120 * 8 = 960 files}
 \hlcom{# 6627.056 sec ~ 110 min }
+
+\hlkwd{dim}\hlstd{(result)}
+\hlcom{#[1] 54186     6}
+
+\hlkwd{head}\hlstd{(result)}
+\hlcom{# A tibble: 6 x 6}
+\hlcom{#        X1     X2    X3}
+\hlcom{#     <int>  <chr> <chr>}
+\hlcom{#1 20081129 210000    pt}
+\hlcom{#2 20081014 190000    en}
+\hlcom{#3 20081108 190000    no}
+\hlcom{#4 20081128 190001    en}
+\hlcom{#5 20081110 160000    et}
+\hlcom{#6 20081101 110000    fr}
+\hlcom{# ... with 3 more variables: X4 <chr>, X5 <int>, X6 <int>}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
 
+Time for static and dyanmic allocation for Barack Obama wikipedia script in R:
 
 \begin{itemize}
-    \item[] 4a) Static: ~ 75 min
-    \item[] 4c) Dynamic: ~ 110 min
+    \item[] 4a) Static: $\sim$ 75 min
+    \item[] 4c) Dynamic: $\sim$ 110 min
 \end{itemize}
 
 Dynamic allocation is slower than static allocation. This is expected here, as each task is expected to take teh same amount of time and use similar computer resources. Dynamic approach sends tasks one at a time to a node, which will increase communication overhead  compared to static allocaiton. Sending a set number of tasks to a core (static) reduces communcation time, and is more efficient when tasks and cores are similar.
@@ -649,8 +659,8 @@ Dynamic allocation is slower than static allocation. This is expected here, as e
 
 \begin{itemize}
     \item $\alpha_{11} = \sqrt{\alpha_{11}}$ is neglibible
-    \item $\alpha_{21} = \frac{\alpha_{21}}{\alpha_{11}} ~ (m - k - 1)$ operations
-    \item $A_{22} ~ (m-k-1)^2$ operations
+    \item $\alpha_{21} = \frac{\alpha_{21}}{\alpha_{11}} \sim (m - k - 1)$ operations
+    \item $A_{22} \sim (m-k-1)^2$ operations
 \end{itemize}
 
 Therefore, 
@@ -663,7 +673,7 @@ $$\begin{aligned}
 
 \subsection{Suppose I’ve written out the Cholesky calculation based on for loops ...}
 
-Yes, you can do that, and save memory.
+Yes, and one would save memory and computational time.
 
 \end{document}
 

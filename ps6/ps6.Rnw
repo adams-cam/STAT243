@@ -245,13 +245,7 @@ head(ws)
 #order data by date
 ws <- ws[order(ws$V1), ]
 
-#plot all teh data x=date, y = hits for "Daylight_saving_time"
-
-
-#plot data according to by date
-ws_eng <- ws[ws$V3 == "en", ]
-ws_ca <- ws[ws$V3 == "ca", ]
-
+#plot hits by date
 par(mfrow=c(2,2), mar = c(7,4,4,1))
 plot(ws$V1, ws$V4, type = 'l', 
      main = "All Languages", ylab = "Hits", xlab = "Date", xaxt = "n")
@@ -384,13 +378,13 @@ write.csv(result, "/global/home/users/camadams/ps6_BOmatches.csv",
 
 @
 
-It took 4497.273 sec ~ 75 min of "clock" time to run the Barack Obama script on 960 files with 1 node/24cores. 
+It took 4497.273 sec $\sim$ 75 min of "clock" time to run the Barack Obama script on 960 files with 1 node/24cores. 
 %4b
 
 
 \subsection{When I run the Spark code provided with Unit 8, it takes ~15 minutes using 9...}
 
-We can approximate the amount of real time by taking the total kernal time it took to run the barack obama object (user time + system time) and divide it by teh number of processes/cores we are using for the parallel operations. Therefore $(4082.902 + 72954.630 ) / (24 \times 4) ~ 16.85$ min. This compares favorably to spark, though it is a bit slower. 16.85 min is likely an under estiamte, and it would likely take a little longer than the estimate. 
+We can approximate the amount of real time by taking the total kernal time it took to run the barack obama object (user time + system time) and divide it by teh number of processes/cores we are using for the parallel operations. Therefore $(4082.902 + 72954.630 ) / (24 \times 4) = 16.85$ min. This compares favorably to spark, though it is a bit slower. 16.85 min is likely an under estiamte, and it would likely take a little longer than the estimate. 
 
 
 <<>>=
@@ -407,9 +401,9 @@ We can approximate the amount of real time by taking the total kernal time it to
 #... same code as in 4a
 
 
-#turn off preschedule and have dynamic allocation
+#turn off preschedule and employ dynamic allocation
 mcoptions <- list(preschedule=FALSE)
-nSub <- nSub/8
+nSub <- nSub/8 #takes too long to run full data
 nSub
 #120
 
@@ -432,12 +426,29 @@ result <- foreach(i = 1:nSub,
  #4159.053 14686.835   828.382 
 (828.382 * 8) / 60 #120 * 8 = 960 files
 # 6627.056 sec ~ 110 min 
+
+dim(result)
+#[1] 54186     6
+
+head(result)
+# A tibble: 6 x 6
+#        X1     X2    X3
+#     <int>  <chr> <chr>
+#1 20081129 210000    pt
+#2 20081014 190000    en
+#3 20081108 190000    no
+#4 20081128 190001    en
+#5 20081110 160000    et
+#6 20081101 110000    fr
+# ... with 3 more variables: X4 <chr>, X5 <int>, X6 <int>
+
 @
 
+Time for static and dyanmic allocation for Barack Obama wikipedia script in R:
 
 \begin{itemize}
-    \item[] 4a) Static: ~ 75 min
-    \item[] 4c) Dynamic: ~ 110 min
+    \item[] 4a) Static: $\sim$ 75 min
+    \item[] 4c) Dynamic: $\sim$ 110 min
 \end{itemize}
 
 Dynamic allocation is slower than static allocation. This is expected here, as each task is expected to take teh same amount of time and use similar computer resources. Dynamic approach sends tasks one at a time to a node, which will increase communication overhead  compared to static allocaiton. Sending a set number of tasks to a core (static) reduces communcation time, and is more efficient when tasks and cores are similar.
@@ -450,8 +461,8 @@ Dynamic allocation is slower than static allocation. This is expected here, as e
 
 \begin{itemize}
     \item $\alpha_{11} = \sqrt{\alpha_{11}}$ is neglibible
-    \item $\alpha_{21} = \frac{\alpha_{21}}{\alpha_{11}} ~ (m - k - 1)$ operations
-    \item $A_{22} ~ (m-k-1)^2$ operations
+    \item $\alpha_{21} = \frac{\alpha_{21}}{\alpha_{11}} \sim (m - k - 1)$ operations
+    \item $A_{22} \sim (m-k-1)^2$ operations
 \end{itemize}
 
 Therefore, 
@@ -464,7 +475,7 @@ $$\begin{aligned}
 
 \subsection{Suppose I’ve written out the Cholesky calculation based on for loops ...}
 
-Yes, you can do that, and save memory.
+Yes, and one would save memory and computational time.
 
 \end{document}
 
