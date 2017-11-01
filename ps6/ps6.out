@@ -1,0 +1,15 @@
+\BOOKMARK [1][-]{section.1}{For this question you will read a journal article ...}{}% 1
+\BOOKMARK [2][-]{subsection.1.1}{What are the goals of their simulation study and what are the metrics that they consider in assessing their method?}{section.1}% 2
+\BOOKMARK [2][-]{subsection.1.2}{What choices did the authors have to make in designing their simulation study? What are the key aspects of the data generating mechanism that likely affect the statistical power of the test? Are there data-generating scenarios that the authors did not consider that would be useful to consider?}{section.1}% 3
+\BOOKMARK [2][-]{subsection.1.3}{Do their tables do a good job of presenting the simulation results and do you have any alternative suggestions for how to do this?}{section.1}% 4
+\BOOKMARK [2][-]{subsection.1.4}{Interpret their tables on power \(Tables 2 and 4\) - do the results make sense in terms of how the power varies as a function of the data generating mechanism?}{section.1}% 5
+\BOOKMARK [2][-]{subsection.1.5}{How do you think the authors decided to use 1000 simulations. Would 10 simulations be enough? How might we decide if 1000 simulations is enough?}{section.1}% 6
+\BOOKMARK [1][-]{section.2}{Using the Stack Overflow database ...}{}% 7
+\BOOKMARK [1][-]{section.3}{With the full Wikipedia traffic data for October-December 2008 ...}{}% 8
+\BOOKMARK [1][-]{section.4}{This question asks you to complete the exercise begun in ...}{}% 9
+\BOOKMARK [2][-]{subsection.4.1}{Using either foreach or parSapply ...}{section.4}% 10
+\BOOKMARK [2][-]{subsection.4.2}{When I run the Spark code provided with Unit 8, it takes \04015 minutes using 9...}{section.4}% 11
+\BOOKMARK [2][-]{subsection.4.3}{Unit 7 discusses the idea of prescheduling ...}{section.4}% 12
+\BOOKMARK [1][-]{section.5}{Details of the Cholesky decomposition presented in Unit 9 ...}{}% 13
+\BOOKMARK [2][-]{subsection.5.1}{Work out the operation count \(multiplies and divides\) for the Cholesky decomposition ...}{section.5}% 14
+\BOOKMARK [2][-]{subsection.5.2}{Suppose I’ve written out the Cholesky calculation based on for loops ...}{section.5}% 15

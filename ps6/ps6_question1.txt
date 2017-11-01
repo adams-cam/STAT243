@@ -3,21 +3,28 @@ Cameron Adams
 PS6
 
 Q1. 
-• What are the goals of their simulation study and what are the metrics that they consider in assessing their method?
 
-The goals of the simulation study are to investigate the finite sample properties of the test. The authors used differences in significance levels for differing values of D (difference in mean of normal distributions in mixture distribution), while varying sample size and mixture proportion. 
+**What are the goals of their simulation study and what are the metrics that they consider in assessing their method?
 
-• What choices did the authors have to make in designing their simulation study? What are the key aspects of the data generating mechanism that likely affect the statistical power of the test? Are there data-generating scenarios that the authors did not consider that would be useful to consider?
+The authors were understand distribution of likelihood ratio for gaussian mixture models. They draw data from gaussian mixture distributions (iid draws) and get a 2LR statistical test. They are interested in power to detect deviations from the null hypothesis for the 2LR statistical test.
 
-As stated above, the authors, make choices about mixture proportion, sample size, and nominal significance. The mixture proportion and difference in means likely affects the statistical power of the test. The authors did not consider sceenarios with normal distributions with different variances, only different norms. Seems likely there would be scenarios where there is a mixture of distributions
+The goals of the simulation study are to investigate the finite sample properties of the test distinguish distributions in mixture distribution. The authors used differences in significance levels for differing values of D (difference in mean of normal distributions in mixture distribution), while varying sample size and mixture proportion. 
 
+**What choices did the authors have to make in designing their simulation study? What are the key aspects of the data generating mechanism that likely affect the statistical power of the test? Are there data-generating scenarios that the authors did not consider that would be useful to consider?
 
-• Do their tables do a good job of presenting the simulation results and do you have any alternative suggestions for how to do this?
+As stated above, the authors, make choices about mixture coefficient, sample size, and nominal significance, different in means (D) between gaussian distributions, k=the number of component gaussian distributions, number of replications, and proportion of p and q. The mixture proportion and difference in means likely affects the statistical power of the test. The authors did not consider scenarios with normal distributions with different variances, only different norms. Seems likely there would be scenarios where there is a mixture of distributions
 
-The tables are confusing, I would like to see plots rather than tables. It would hvae been interesting to see how simulations perform across a distribution of mixture proportions, rather than a few discrete vaules (e.g, 0.5, 0.7, etc).
+Each simulation is a draw of the sample (data generating process), on which the test statistic is calculated.
 
-• Interpret their tables on power (Tables 2 and 4) - do the results make sense in terms of how the power varies as a function of the data generating mechanism?
+**Do their tables do a good job of presenting the simulation results and do you have any alternative suggestions for how to do this?
 
+The tables are confusing, I would like to see plots rather than tables. It would have been interesting to see how simulations perform across a distribution of mixture proportions, rather than a few discrete values (e.g, 0.5, 0.7, etc).
 
-• How do you think the authors decided to use 1000 simulations. Would 10 simulations be enough? How might we decide if 1000 simulations is enough?
+**Interpret their tables on power (Tables 2 and 4) - do the results make sense in terms of how the power varies as a function of the data generating mechanism?
+
+As sample size increases, 2LR should also be increasing, and you can reject a greater proportion of null hypothesis. However, as D increased, there was more power to reject the null. Power should increase and difference in means increases, and results indicate that is true. Table 4 is similar, but shows results for k=3 component distributions. Results 
+
+**How do you think the authors decided to use 1000 simulations. Would 10 simulations be enough? How might we decide if 1000 simulations is enough?
+
+They decided to do 1000 simulations because it would give good resolution for p-values (1/1000 = 0.001). Ten simulations would give us a resolution of 1/10=0.1. Convergence rate also plays a role in determining number of simulations. If computation is cheap, they doing very large amounts of simulations are trivial (e.g, n=10,000, n=1e6, etc.), and the opposite is true, if computation is "expensive", one wants to do smallest number of simulations that provide an adequate distribution of test statistics. 
 

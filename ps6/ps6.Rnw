@@ -21,7 +21,7 @@
 rm(list = ls())
 
 #set working dir
-setwd("/Users/CamAdams/repos/STAT243/ps6/")
+#setwd("/Users/CamAdams/Downloads/")
 
 #load packages
 require(RCurl)
@@ -42,27 +42,35 @@ knitr::opts_chunk$set(cache=F,
 
 \subsection{What are the goals of their simulation study and what are the metrics that they consider in assessing their method?}
 
-The goal of the simulation is to investiagte the finite sample properties of the proposed test. They are using simulated power and significance levels to assess method performance given different mixture proportions, D, etc.
+The authors were understand distribution of likelihood ratio for gaussian mixture models. They draw data from gaussian mixture distributions (iid draws) and get a 2LR statistical test. They are interested in power to detect deviations from the null hypothesis for the 2LR statistical test.
+
+The goals of the simulation study are to investigate the finite sample properties of the test distinguish distributions in mixture distribution. The authors used differences in significance levels for differing values of D (difference in mean of normal distributions in mixture distribution), while varying sample size and mixture proportion. 
 
 \subsection{What choices did the authors have to make in designing their simulation study? What are the key aspects of the data generating mechanism that likely affect the statistical power of the test? Are there data-generating scenarios that the authors did not consider that would be useful to consider?}
 
-Mixture proportions, D (differenc means between guassian distributions), norminal $\alpha$, and sample size. ?
+As stated above, the authors, make choices about mixture coefficient, sample size, and nominal significance, different in means (D) between gaussian distributions, k=the number of component gaussian distributions, number of replications, and proportion of p and q. The mixture proportion and difference in means likely affects the statistical power of the test. The authors did not consider scenarios with normal distributions with different variances, only different norms. Seems likely there would be scenarios where there is a mixture of distributions
 
+Each simulation is a draw of the sample (data generating process), on which the test statistic is calculated.
 
 \subsection{Do their tables do a good job of presenting the simulation results and do you have any alternative suggestions for how to do this?}
 
+The tables are confusing, I would like to see plots rather than tables. It would have been interesting to see how simulations perform across a distribution of mixture proportions, rather than a few discrete values (e.g, 0.5, 0.7, etc).
+
 \subsection{Interpret their tables on power (Tables 2 and 4) - do the results make sense in terms of how the power varies as a function of the data generating mechanism?}
+
+As sample size increases, 2LR should also be increasing, and you can reject a greater proportion of null hypothesis. However, as D increased, there was more power to reject the null. Power should increase and difference in means increases, and results indicate that is true. Table 4 is similar, but shows results for k=3 component distributions. Results 
 
 \subsection{How do you think the authors decided to use 1000 simulations. Would 10 simulations be enough? How might we decide if 1000 simulations is enough?}
 
+They decided to do 1000 simulations because it would give good resolution for p-values (1/1000 = 0.001). Ten simulations would give us a resolution of 1/10=0.1. Convergence rate also plays a role in determining number of simulations. If computation is cheap, they doing very large amounts of simulations are trivial (e.g, n=10,000, n=1e6, etc.), and the opposite is true, if computation is "expensive", one wants to do smallest number of simulations that provide an adequate distribution of test statistics. 
 
-\section{Using the Stack Overflow database (http://www.stat.berkeley.edu/share/paciorek/stackoverflow-2016.db), write SQL code that will determine which users have asked only R-related questions and no Pythonrelated questions. Those of you with more experience with SQL might do this in a single query, but it’s perfectly fine to create one or more views and then use those views to get the result as a subsequent query. Report how many unique such users there are based on running your query from either R or Python. The Stack Overflow SQLite database is ~ 650 MB on disk, which should be manageable on most of your laptops, but if you run into problems, you can use an SCF machine or Savio (in the latter case you’ll need to install the RSQLite package).}
+
+
+\section{Using the Stack Overflow database ...}
 %1
 
-<<prob2>>=
 
-rm(list = ls())
-
+<<>>=
 library(RSQLite)
 
 ###############
@@ -71,144 +79,114 @@ library(RSQLite)
 #set SQL db driver
 drv <- dbDriver("SQLite")
 
-#connec to db
-dir <- "/Users/CamAdams/repos/STAT243/ps6/" # path to where the .db file is
+getwd()
+
+#connec5 to db
+
 dbFilename <- 'stackoverflow-2016.db'
-db <- dbConnect(drv, dbname = file.path(dir, dbFilename))
-
-#########
-# write SQL code that will determine 
-# which users have asked only R-related questions and no Python related questions
+db <- dbConnect(drv, dbname = file.path(dbFilename))
+#dbDisconnect(db)
 
 
-# simple query to get 5 rows from a table
-#dbGetQuery(db, "select * from questions limit 5")  
 
-dbListTables(db)
+#drop tables not in original set
+tbls <- c("answers", "maxRepByQuestion", "questions",
+          "questionsAugment", "questions_tags", "users")
+tbls_toDrop <- dbListTables(db)[!dbListTables(db) %in% tbls]
 
-dbListFields(db, "users")
+if (length(tbls_toDrop) > 0) {
+    sapply(tbls_toDrop, function(X) {
+        sql_cmd <- paste0("DROP VIEW if exists ", X)
+        dbSendQuery(db, sql_cmd) #code to drop tables/views
+        })
+} else {cat("No user created tables")}
 
+
+#look at fields of needed tables table
 dbListFields(db, "questions")
-
 dbListFields(db, "questions_tags")
 
-dbListFields(db, "answers")
+###############
+# Find users who only asked R not python qestions
 
-dbListFields(db, "questionsAugment")
+#create view tables for py 
+dbSendQuery(db, "CREATE VIEW query_r AS SELECT questions.questionid, ownerid, tag as tagR from questions join questions_tags 
+           on questions.questionid = questions_tags.questionid 
+           where tag = 'r'")
 
-dbGetQuery(db, "select python from questions_tag limit 5") 
+# and r tag 
+dbSendQuery(db, "CREATE VIEW query_py AS SELECT questions.questionid, ownerid, tag as tagPy from questions join questions_tags 
+           on questions.questionid = questions_tags.questionid 
+           where tag = 'python'")
 
-dbGetQuery(db, "select * from users limit 5") 
-dbGetQuery(db, "select * from questions limit 5") 
-dbGetQuery(db, "select * from answers limit 5") 
-dbGetQuery(db, "select * from questions_tags limit 5") 
-dbGetQuery(db, "select * from questionsAugment limit 5") 
+#check views
+dbGetQuery(db, "select * from query_r limit 5")
+dbGetQuery(db, "select COUNT(*) from query_r")
+dbGetQuery(db, "select * from query_py limit 5")
+dbGetQuery(db, "select COUNT(*) from query_py")
 
+#left outer join r and py view tables
+dbSendQuery(db, "CREATE VIEW query_r_py AS SELECT * from query_r left outer join query_py
+             on query_r.ownerid = query_py.ownerid")
 
+#dbGetQuery(db, "select * from query_r_py limit 5")
+#dbGetQuery(db, "select COUNT(*) from query_r_py")
 
+#remove tagPy = <NA> to get answer to question
+r_not_py_user_count <- dbGetQuery(db, "SELECT COUNT (DISTINCT ownerid) from query_r_py 
+                WHERE tagPy IS NULL")
+r_not_py_user_count
+#18611
 
-#three way join between questions, questions_tags, and questionsAugment on 
-#question id
-results <- dbGetQuery(db, "SELECT * from questions, questions_tags, questionsAugment 
-            WHERE questions.questionid = questions_tags.questionid 
-            AND questionsAugment.questionid = questions.questionid 
-            AND tag != 'python' AND tag = 'r'")
+#check answer in R
+r <- dbGetQuery(db, "select * from query_r")
+py <- dbGetQuery(db, "select * from query_py")
 
-dim(results)
-
-#extract unique display names who asked R questions only
-displayname <- unique(results$displayname)
-length(displayname)
-
-
+sum(r$ownerid %in% py$ownerid) #8884 users asked both matches
+r_not_py_user_count == sum(!unique(r$ownerid) %in% py$ownerid) 
+#THEY MATCH!!! :)
 @
+
+The answer is there are 18,611 stackoverflow users who asked R questions and no python questions.
+
 
 %q3
-<<>>=
+\section{With the full Wikipedia traffic data for October-December 2008 ...}
 
-module load r/3.2.5
-which R
+Code to load pyspark from bash
+<<eval = FALSE>>=
 
-
-
-########
-# R Code
-
-
-if(!require(sparklyr)) {
-    install.packages("sparklyr")
-    spark_install(version = "2.2.0")
-}
-
-## config.yml has driver-memory set -- need some GB for driver
-## or read_csv will be out-of-memory and/or slow down
-readLines('config.yml')
-
-### connect to Spark ###
-
-sc <- spark_connect(master = "local")
-# sc <- spark_connect(master = Sys.getenv("SPARK_MASTER")) # non-local 
-
-cols <- c(date = 'numeric', hour = 'numeric', lang = 'character',
-          page = 'character', hits = 'numeric', size = 'numeric')
-          
-
-## takes a while even with only 1.4 GB (zipped) input data (100 sec.)
-## copy from /scratch/users/paciorek/wikistats/dated" to /tmp/wiki 
-wiki <- spark_read_csv(sc, "wikistats", "/tmp/wiki",
-                       header = FALSE, delimiter = ' ',
-                       columns = cols, infer_schema = FALSE)
-
-
-@
-
-<<python>>=
-
-srun -A ic_stat243 -p savio2 --nodes=4 -t 1:00:00 --pty bash
-module load java spark
+#load pyspark
+srun -A ic_stat243 -p savio2 --nodes=1 -t 1:00:00 --pty bash
+module load java spark 
 source /global/home/groups/allhands/bin/spark_helper.sh
 spark-start
 ## note the environment variables created
 env | grep SPARK
 
 
-
+# load PySpark using Python 2.7.8 (more packages available)
 module load python/2.7.8 numpy
 pyspark --master $SPARK_URL --executor-memory 60G \
---conf "spark.executorEnv.PATH=${PATH}" \
---conf "spark.executorEnv.LD_LIBRARY_PATH=${LD_LIBRARY_PATH}"
-\
---conf "spark.executorEnv.PYTHONPATH=${PYTHONPATH}"
+        --conf "spark.executorEnv.PATH=${PATH}" \
+        --conf "spark.executorEnv.LD_LIBRARY_PATH=${LD_LIBRARY_PATH}" \
+        --conf "spark.executorEnv.PYTHONPATH=${PYTHONPATH}"
+@
 
-
-
+Python code for pyspark/mapReduce
+<<eval = FALSE>>=
 
 #####
-# python code
-dir = '/global/scratch/paciorek/wikistats'
-dir = "/global/scratch/paciorek/wikistats/dated/"
+# python code to get world series by time
 
-### read data and do some checks ###
-#lines = sc.textFile(dir + '/' + 'dated')
-lines = sc.textFile(dir)
-lines.getNumPartitions() # 17/10/27 03:49:40 INFO FileInputFormat: Total input paths to process : 192
+dir='/global/scratch/paciorek/wikistats_full/dated_for_R/'
+lines=sc.textFile(dir)
 
-
-lines.count() # 17/10/27 03:55:19 INFO DAGScheduler: ResultStage 0 (count at <stdin>:1) finished in 167.911 s
-#17/10/27 03:55:19 INFO TaskSchedulerImpl: Removed TaskSet 0.0, whose tasks have all completed, from pool 
-#17/10/27 03:55:19 INFO DAGScheduler: Job 0 finished: count at <stdin>:1, took 167.999035 s
-testLines = lines.take(10)
-testLines[0]
-#u'20081104 110000 commons.m Image:Quinten_Metsys-Triptique_de_la_confrerie_Saint-Anne_a_Louvain_mg_2990.jpg 1 9789'
-
-testLines[9]
-#u'20081104 110000 commons.m Image:Quit_India_Movement.ogg 1 8669'
-
-### filter to sites of interest ###
+### filter to sites containing "Christmas"
 import re
 from operator import add
 
-def find(line, regex = "", language = None):
+def find(line, regex = "Christmas", language = None): 
     vals = line.split(' ')
     if len(vals) < 6:
         return(False)
@@ -217,44 +195,106 @@ def find(line, regex = "", language = None):
         return(False)
     else:
         return(True)
-    
-    
+  
+xmas=lines.filter(find).repartition(960)
+
+xmas.count()
+
+### map-reduce step to sum hits across date-time-language triplets
+
+def stratify(line):
+    # create key-value pairs where:
+    #   key: date-time-language
+    #   value: number of website hits
+    vals=line.split(' ')
+    return(vals[0]+'-'+vals[1]+'-'+vals[2],int(vals[4]))
+
+## sum number of hits for each date-time-language value
+counts=xmas.map(stratify).reduceByKey(add)
+
+### map step to prepare output
+def transform(vals):
+    # split key info back into separate fields
+    key=vals[0].split('-')
+    return(",".join((key[0],key[1],key[2],str(vals[1]))))
+
+### output to file
+output=counts.map(transform).repartition(1).collect()
+with open('/global/home/users/camadams/Christmas.txt', 'w') as txtFile:
+  txtFile.write('\n'.join(output))
 @
 
+Bash code to get world sereis data onto my local computer
+
+<<eval = F>>=
+#bash code to get world sereis data onto my local computer
+scp camadams@dtn.brc.berkeley.edu:/global/home/users/camadams/Christmas.txt \
+    ~/Downloads/.
+@
+
+R code to analyze world series data from wikipedia 
+
+<<fig.height=6, fig.width=6>>=
+#R code to analyze world series data from wikipedia 
+
+#read in data
+ws <- read.csv("./Christmas.txt", header = F)
+dim(ws)
+head(ws)
+
+#order data by date
+ws <- ws[order(ws$V1), ]
+
+#plot all teh data x=date, y = hits for "Daylight_saving_time"
+
+
+#plot data according to by date
+ws_eng <- ws[ws$V3 == "en", ]
+ws_ca <- ws[ws$V3 == "ca", ]
+
+par(mfrow=c(2,2), mar = c(7,4,4,1))
+plot(ws$V1, ws$V4, type = 'l', 
+     main = "All Languages", ylab = "Hits", xlab = "Date", xaxt = "n")
+axis(1, las = 2, cex.axis = 0.75)
+plot(ws$V1[ws$V3 == "en"], ws$V4[ws$V3 == "en"], type = 'l', 
+     main = "English", ylab = "Hits", xlab = "Date", xaxt = "n")
+axis(1, las = 2, cex.axis = 0.75)
+plot(ws$V1[ws$V3 == "es"], ws$V4[ws$V3 == "es"], type = 'l', 
+     main = "Spanish", ylab = "Hits", xlab = "Date", xaxt = "n")
+axis(1, las = 2, cex.axis = 0.75)
+plot(ws$V1[ws$V3 == "de"], ws$V4[ws$V3 == "de"], type = 'l', 
+     main = "German", ylab = "Hits", xlab = "Date", xaxt = "n")
+axis(1, las = 2, cex.axis = 0.75)
+
+
+@
+
+I am missing some of the data, not sure why, but I downloaded all hits for "Christmas" for the wikipedia data located in \url{/global/scratch/paciorek/wikistats_full/dated_for_R/}. In the plots you can see that hits for "Chrimstas" grow as time approaches Dec 25, and then sharply drop off towards the end of the year. This is broadly true for all languages and for English, Spanish, and German wikipedia. 
 
 %q4a
+\section{This question asks you to complete the exercise begun in ...}
 
-<<>>=
-    
-#srun -A ic_stat243 -p savio2  --nodes=1 -t 60:00 --pty bash
-#env | grep SLURM  ## see what environment variables are set by SLURM
 
+\subsection{Using either foreach or parSapply ...}
+
+
+Bash code to srun into savio and load r modules
+<<engine = 'bash', eval = FALSE>>=
+ 
+# Code to login savio node and load needed R modules
+srun -A ic_stat243 -p savio2 --nodes=1 -t 1:00:00 --pty bash
+env | grep SLURM  ## see what environment variables are set by SLURM
 
 module load r/3.2.5 doParallel/1.0.10 ggplot2/2.1.0 RColorBrewer/1.1-2 stringr/1.0.0 plyr/1.8.3 dplyr/0.4.3  foreach/1.4.3  
     
-####
-# bash script for SBATCH
- 
-#!/bin/bash
-# Job name:
-#SBATCH --job-name=BO_mataches
-#
-# Account:
-#SBATCH --account=ic_stat243
-#
-# Partition:
-#SBATCH --partition=savio2
-#
-# Wall clock limit (10 min here):
-#SBATCH --time=00:60:00
-#
-## Command(s) to run:
+#R CMD BATCH --no-save BO_matches.R BO_matches.Rout 
+    #I couldn't get R CMD BATCH To work, used R interactively
 
-module load r/3.2.5 doParallel/1.0.10 foreach/1.4.3  
+@
 
-R CMD BATCH --no-save BO_matches.R BO_matches.Rout 
+R script used to answer quesiton 4a) is below.
 
-
+<<eval = F>>=
 ####
 # R script
     
@@ -262,6 +302,7 @@ rm(list=ls())
 
 #load packages
 require(readr)
+#Loading required package: readr
 
 #get files in directory
 dir <- "/global/scratch/paciorek/wikistats_full/dated_for_R/"
@@ -273,12 +314,21 @@ files <- files[grepl("part", files)]
 #set file paths
 filePaths <- paste0(dir, files)
 
+head(filePaths)
+#[1] "/global/scratch/paciorek/wikistats_full/dated_for_R/part-00000"
+#[2] "/global/scratch/paciorek/wikistats_full/dated_for_R/part-00001"
+#[3] "/global/scratch/paciorek/wikistats_full/dated_for_R/part-00002"
+#[4] "/global/scratch/paciorek/wikistats_full/dated_for_R/part-00003"
+#[5] "/global/scratch/paciorek/wikistats_full/dated_for_R/part-00004"
+#[6] "/global/scratch/paciorek/wikistats_full/dated_for_R/part-00005"
+
 #set read_delim progress bar options
-#options(readr.show_progress = F)
+options(readr.show_progress = F)
 
 #get num cores
-nCores <- 24 #Sys.getenv("SLURM_CPUS_ON_NODE")
+nCores <- as.integer(Sys.getenv("SLURM_CPUS_ON_NODE"))
 nCores
+#[1] 24
 
 require(parallel)
 require(doParallel)
@@ -289,6 +339,8 @@ registerDoParallel(nCores)
 
 #set iterations
 nSub <- length(filePaths) 
+nSub
+#[1] 960
 
 system.time(
 result <- foreach(i = 1:nSub,
@@ -299,45 +351,136 @@ result <- foreach(i = 1:nSub,
 
     dat <- readr::read_delim(filePaths[i], delim = " ", col_names = F)
     
-    cat("iteration ", i, " is complete!! :)")
+    cat("########  iteration ", i, " is complete!! :) ########")
     
     dat[grep("Barack_Obama", dat$X4, fixed = T), ]
                   }
 )
+# user    system   elapsed 
+#24082.902 72954.630  4497.273
 
-str(result)
-head(result)
-tail(result)
+
+#check data
 dim(result)
+#[1] 430160      6
+
+head(result)
+# A tibble: 6 x 6
+#        X1     X2    X3
+#     <int>  <chr> <chr>
+#1 20081129 210000    pt
+#2 20081014 190000    en
+#3 20081108 190000    no
+#4 20081128 190001    en
+#5 20081110 160000    et
+#6 20081101 110000    fr
+# ... with 3 more variables: X4 <chr>, X5 <int>, X6 <dbl>
+
+
 
 write.csv(result, "/global/home/users/camadams/ps6_BOmatches.csv",
           row.names = F, quote = F)  
+
+
 @
 
-
+It took 4497.273 sec ~ 75 min of "clock" time to run the Barack Obama script on 960 files with 1 node/24cores. 
 %4b
 
 
-%4c
+\subsection{When I run the Spark code provided with Unit 8, it takes ~15 minutes using 9...}
+
+We can approximate the amount of real time by taking the total kernal time it took to run the barack obama object (user time + system time) and divide it by teh number of processes/cores we are using for the parallel operations. Therefore $(4082.902 + 72954.630 ) / (24 \times 4) ~ 16.85$ min. This compares favorably to spark, though it is a bit slower. 16.85 min is likely an under estiamte, and it would likely take a little longer than the estimate. 
 
 
+<<>>=
+#Estimate speed of R processes BO data using 96 codes
+    #(user + system time) / cores
+((24082.902 + 72954.630 ) / (24 * 4)) / 60
+@
 
-%question 5a, 5b
 
-https://math.stackexchange.com/questions/217738/how-to-calculate-the-cost-of-cholesky-decomposition
-https://www.youtube.com/watch?v=NppyUqgQqd0
-https://rosettacode.org/wiki/Cholesky_decomposition#R
+%4c EXTRACT credit
+\subsection{Unit 7 discusses the idea of prescheduling ...}
+<<eval = F>>=
+
+#... same code as in 4a
+
+
+#turn off preschedule and have dynamic allocation
+mcoptions <- list(preschedule=FALSE)
+nSub <- nSub/8
+nSub
+#120
+
+system.time(
+result <- foreach(i = 1:nSub,
+                  .options.multicore = mcoptions,
+                  .packages = c("readr"),       # libraries to load onto each worker
+                  .combine = rbind,             # how to combine results
+                  .errorhandling=c("pass"),
+                  .verbose = TRUE) %dopar% {
+
+    dat <- readr::read_delim(filePaths[i], delim = " ", col_names = F)
+    
+    cat("########  iteration ", i, " is complete!! :) ########")
+    
+    dat[grep("Barack_Obama", dat$X4, fixed = T), ]
+                  }
+)
+ #user    system   elapsed 
+ #4159.053 14686.835   828.382 
+(828.382 * 8) / 60 #120 * 8 = 960 files
+# 6627.056 sec ~ 110 min 
+@
+
+
+\begin{itemize}
+    \item[] 4a) Static: ~ 75 min
+    \item[] 4c) Dynamic: ~ 110 min
+\end{itemize}
+
+Dynamic allocation is slower than static allocation. This is expected here, as each task is expected to take teh same amount of time and use similar computer resources. Dynamic approach sends tasks one at a time to a node, which will increase communication overhead  compared to static allocaiton. Sending a set number of tasks to a core (static) reduces communcation time, and is more efficient when tasks and cores are similar.
+
+%question5 
+
+\section{Details of the Cholesky decomposition presented in Unit 9 ...}
+
+\subsection{Work out the operation count (multiplies and divides) for the Cholesky decomposition ...}
+
+\begin{itemize}
+    \item $\alpha_{11} = \sqrt{\alpha_{11}}$ is neglibible
+    \item $\alpha_{21} = \frac{\alpha_{21}}{\alpha_{11}} ~ (m - k - 1)$ operations
+    \item $A_{22} ~ (m-k-1)^2$ operations
+\end{itemize}
+
+Therefore, 
+
+$$\begin{aligned}
+\text{Operations } &= \sum_{k=0}^{m-1} (m-k-1)^2 = \sum_{k=0}^{m-1} (m - k - 1) \\
+&= \sum_{j=0}^{m-1} j^2 + \sum_{j=0}^{m-1} j \\
+&\approx \frac{1}{3}m^3 + \frac{1}{2}m^2 
+\end{aligned}$$
+
+\subsection{Suppose I’ve written out the Cholesky calculation based on for loops ...}
+
+Yes, you can do that, and save memory.
+
+\end{document}
 
 <<knit,eval=F,echo=F>>=
 ###########
 #knit2pdf
 rm(list=ls())
 require(knitr)
-setwd("/Users/CamAdams/repos/STAT243/ps5/") 
-#Sweave2knitr("./ps3.rnw")
-knit2pdf(input = "ps5.Rnw", output = "ps5.tex")
+setwd("/Users/CamAdams/repos/STAT243/ps6/") 
+#Sweave2knitr("./ps6.rnw")
+knit2pdf(input = "ps6.Rnw", output = "ps6.tex")
 @
 
 
-\end{document}
 
+
+%https://math.stackexchange.com/questions/217738/how-to-calculate-the-cost-of-cholesky-decomposition
+%https://www.youtube.com/watch?v=NppyUqgQqd0
+%https://rosettacode.org/wiki/Cholesky_decomposition#R
