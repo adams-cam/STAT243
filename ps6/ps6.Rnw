@@ -30,9 +30,8 @@ require(pryr)
 require(microbenchmark)
 
 #set gobal chunk options
-knitr::opts_chunk$set(cache=F,
-                      background='#F7F7F7',
-                      results='markup')
+knitr::opts_chunk$set(cache=T,
+                      background='#F7F7F7')
 
 @
 
@@ -69,7 +68,19 @@ They decided to do 1000 simulations because it would give good resolution for p-
 \section{Using the Stack Overflow database ...}
 %1
 
+<<>>=
+select displayname, userid from
+(questions Q1 join questions_tags T1 on Q1.questionid = T1.questionid)
+join
+(questions Q2 join questions_tags T2 on Q2.questionid = T2.questionid)
+on Q1.ownerid = Q2.ownerid
+join users on Q1.ownerid = users.userid
+where T1.tag = 'r' and T2.tag = 'python'
 
+
+
+
+@
 <<>>=
 library(RSQLite)
 
@@ -232,9 +243,12 @@ scp camadams@dtn.brc.berkeley.edu:/global/home/users/camadams/Christmas.txt \
     ~/Downloads/.
 @
 
-R code to analyze world series data from wikipedia 
 
-<<fig.height=6, fig.width=6>>=
+
+
+
+R code to plot christmas data from wikipedia. 
+<<results = '' >>=
 #R code to analyze world series data from wikipedia 
 
 #read in data
@@ -244,26 +258,37 @@ head(ws)
 
 #order data by date
 ws <- ws[order(ws$V1), ]
+@
 
+I am missing some of the data, not sure why, but I downloaded all hits for "Christmas" for the wikipedia data located in \url{/global/scratch/paciorek/wikistats_full/dated_for_R/}. In the plots you can see that hits for "Chrimstas" grow as time approaches Dec 25, and then sharply drop off towards the end of the year. This is broadly true for all languages and for English and  Spanish (who both use daylight savings). Russia doesn't have daylight savings, and there are virtually no hits during the time period.
+
+<<fig = TRUE>>=
 #plot hits by date
-par(mfrow=c(2,2), mar = c(7,4,4,1))
+#all languages
+par(mfrow = c(1, 1), mar = c(7, 4, 4, 1))
 plot(ws$V1, ws$V4, type = 'l', 
      main = "All Languages", ylab = "Hits", xlab = "Date", xaxt = "n")
 axis(1, las = 2, cex.axis = 0.75)
+@
+
+\pagebreak
+
+<<>>=
+#English, spanish, russian
+par(mfrow = c(2, 2))
 plot(ws$V1[ws$V3 == "en"], ws$V4[ws$V3 == "en"], type = 'l', 
      main = "English", ylab = "Hits", xlab = "Date", xaxt = "n")
 axis(1, las = 2, cex.axis = 0.75)
 plot(ws$V1[ws$V3 == "es"], ws$V4[ws$V3 == "es"], type = 'l', 
      main = "Spanish", ylab = "Hits", xlab = "Date", xaxt = "n")
 axis(1, las = 2, cex.axis = 0.75)
-plot(ws$V1[ws$V3 == "de"], ws$V4[ws$V3 == "de"], type = 'l', 
-     main = "German", ylab = "Hits", xlab = "Date", xaxt = "n")
+plot(ws$V1[ws$V3 == "ru"], ws$V4[ws$V3 == "ru"], type = 'l', 
+     main = "Russian", ylab = "Hits", xlab = "Date", xaxt = "n")
 axis(1, las = 2, cex.axis = 0.75)
-
 
 @
 
-I am missing some of the data, not sure why, but I downloaded all hits for "Christmas" for the wikipedia data located in \url{/global/scratch/paciorek/wikistats_full/dated_for_R/}. In the plots you can see that hits for "Chrimstas" grow as time approaches Dec 25, and then sharply drop off towards the end of the year. This is broadly true for all languages and for English, Spanish, and German wikipedia. 
+
 
 %q4a
 \section{This question asks you to complete the exercise begun in ...}
@@ -477,7 +502,7 @@ $$\begin{aligned}
 
 Yes, and one would save memory and computational time.
 
-\end{document}
+
 
 <<knit,eval=F,echo=F>>=
 ###########
@@ -489,7 +514,7 @@ setwd("/Users/CamAdams/repos/STAT243/ps6/")
 knit2pdf(input = "ps6.Rnw", output = "ps6.tex")
 @
 
-
+\end{document}
 
 
 %https://math.stackexchange.com/questions/217738/how-to-calculate-the-cost-of-cholesky-decomposition

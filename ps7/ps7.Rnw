@@ -1,0 +1,336 @@
+\documentclass{article}
+\title{Problem Set 7}
+\author{Cameron Adams}
+
+
+\usepackage{float, hyperref}
+\usepackage[margin = 1in]{geometry}
+\usepackage{graphicx}
+\usepackage{sectsty}
+\usepackage{hyperref}
+\usepackage{amsmath}
+
+\begin{document}
+%\SweaveOpts{concordance=TRUE}
+
+\maketitle
+
+
+
+<<echo = F>>=
+rm(list = ls())
+
+#set working dir
+#setwd("/Users/CamAdams/Downloads/")
+
+#load packages
+require(RCurl)
+require(stringr)
+require(pryr)
+require(microbenchmark)
+
+#set gobal chunk options
+knitr::opts_chunk$set(cache=T,
+                      background='#F7F7F7')
+
+@
+
+%Q1
+\section{Suppose I have a statistical method that estimates a regression ...}
+
+%You can compare the standard error, $SE(\hat{\beta})_{1,...,m}$, from the distribution of estimate coefficients, $\hat{\beta}_{1,...,m}$. Compare these estimated SE, $\hat{\beta}_{1,...,m}$ , to the SE of the coefficient, $\widehat{SE}(\hat{\beta})$.
+
+
+You can compare the standard errors estimated from simulation study, $\hat{SE}_i(\hat{\beta})_i$, to the standard error of the estimated coefficients $SE(\hat{\beta}_i)$ or to the mean of the estimated standard errors, $mean(\hat{SE}(\hat{\beta}_i))$.
+
+
+\section{Show that $||A||_2$ is the largest of the absolute values of the eigenvalues of A for symmetric A. To do so, find the following quantity ...}
+
+First we assume that A is symmetric, with $A = \Gamma \Lambda \Gamma^{-1}$, where, $\Lambda$ is a diagonal matrix of eigenvalues and $\Lambda$ are the eigenvectors.
+
+$$\begin{aligned}
+||A||_2 &= \sup_{z:||z||_2} \sqrt{(Az)^\top Az} \\
+&= \sqrt{z^\top A^\top Az} \\
+&= \sqrt{z^\top (\Gamma \Lambda \Gamma^{-1})^\top (\Gamma \Lambda \Gamma)z} \\
+&= \sqrt{z^\top (\Gamma^{-1})^\top \Lambda \Gamma^\top \Gamma \Lambda \Gamma^{-1}z} \\
+&= \sqrt{(\Gamma^{-1} z)^\top \Lambda^2 (\Gamma^{-1} z)} \\
+\text{where } y &= \Gamma^\top z, \text{and if } ||z||_2 = 1 \text{ then } ||y||_2 = 1 \\
+&= y^\top \Lambda^2 y \\
+&= \sum_{i=1}^n \sqrt{ \sum_{i=1}^n \lambda_i y_i^2} \\
+\text{maximized when} &\sqrt{ \sum_{i=1}^n \lambda_i y_i^2} = \sqrt{max(|\lambda_i|)} \\
+\end{aligned}$$
+
+We can use the hint $\Gamma^\top z = y$ because $\Gamma$ is orthogonal columns (SVD). Therefore, if $||z||_2=1$ then it follows that $||y||_2 =1$. The norms of the columns of $\Gamma$ are 1 by SVD. Therefore, the linear map of $\Gamma$ applied to unit norm vector will give a unit norm vector output. When we get to the sum, we know that $\sum y_i = 1$. From there we can substitute the $\sum$ into the equation, and we know that this value is maximized when we have the largest singular/eigen value, which should be the first one.
+
+%3
+\section{Some practice with matrix manipulations.}
+
+\subsection{}
+
+X is a matrix with n x p dimensions, with n $>$ p. $X^\top X = M$, where $M$ is a matrix of dimension p x p and $X X^\top= M$ and $M$ is a matrix with dimensions n x n. Therefore, the eigen decomposition of $X^\top X$, by definition of SVD:
+
+$$\begin{aligned}
+\text{by definition, SVD of } X = UDV^\top &\\
+\text{therefore, } &\\
+X^\top X  &= (UDV^\top)^\top (UDV^\top) \\
+&= (VD^\top U^\top UDV^\top \\ 
+&= V D^\top D V^\top \\
+&= V D^2 V^\top \\
+\end{aligned}$$
+
+And for $X X^\top = M$, we see something similar
+
+
+$$\begin{aligned}
+\text{by definition, SVD of } X = UDV^\top &\\
+\text{therefore, } & \\
+X^\top X  &= (UDV^\top)(UDV^\top)^\top  \\
+& = U D V^\top V D^\top U^\top \\
+& = U D^2 U^\top  \\
+\end{aligned}$$
+
+Therefore, we see that the left and right singular vectors of $X$ are the eigenvalues for $XX^\top$ and $X^\top X$, respectively.
+
+To show that $X^\top X$ is p.s.d., we need  the eigenvalues of $X^\top X$ to be positive and that $X^\top X$ is symmetric. From above, we see that eigen-decomposition of  $X^\top X = V D^2 V^\top$. The eigenvalues are $D^2$, and $D^2>0$. $X^\top X$ will be a square matrix with dimensions p x p, and is symmetric and therefore will be positive definite.
+
+
+\subsection{}
+If we know that $\lambda$ is a number that is an eigenvalue of $\Sigma$ and $v$ is a non-zero vector that is an eigenvector of $\Sigma$, there, $\Sigma v = \lambda v$. So, if we want an eigenvalue for $Z = \Sigma + c I$, we can substitute $Z$ for $\Sigma$.
+
+$$\begin{aligned}
+Z v &= \lambda v \\
+(\Sigma + c I) v &= \lambda v \\
+(\Sigma + c I) &= \lambda \\
+\end{aligned}$$
+
+\section{}
+
+
+
+\subsection{}
+
+First I would simplify the expression by inverting $AC^{-1}A^\top)^{-1}$.
+
+$$\begin{aligned}
+\beta &= C^{-1} d +C^{-1}A^\top (AC^{-1}A^\top)^{-1} (-AC^{-1}d + b) \\
+&= C^{-1} d + C^-1 A^\top (A^\top)^{-1}C A^{-1} (-AC^{-1}d + b) \\
+&= C^{-1} d + A^{-1}  (-AC^{-1}d + b) \\
+&= C^{-1} d + A^{1} A C^{-1}d + A^{-1} b \\
+&= C^{-1} d - C^{-1} d + A^{-1}b \\
+&=  A^{-1}b
+\end{aligned}$$
+
+In the above simplification, we are assuming that $A$ is invertable. However, if we can't assume $A$ is invertable, then we can use eigen decomposition to remove the need for taking the inverse of $E^{-1} =(AC^{-1}A^\top)^{-1}$.
+
+$$\begin{aligned}
+\beta &= C^{-1} d +C^{-1}A^\top (AC^{-1}A^\top)^{-1} (-AC^{-1}d + b) \\
+&= C^{-1} d +C^{-1}A^\top (eigen(AC^{-1}A^\top))^{-1} (-AC^{-1}d + b) \\
+&= C^{-1} d +C^{-1}A^\top (\Gamma \Lambda \Gamma^\top)^{-1} (-AC^{-1}d + b) \\
+&= C^{-1} d +C^{-1}A^\top (\Gamma^\top)^{-1} \Lambda^{-1} \Gamma^{-1} (-AC^{-1}d + b) \\
+&= C^{-1} d +C^{-1}A^\top \Gamma \Lambda^{-1} \Gamma^\top (-AC^{-1}d + b) \\
+\end{aligned}$$
+
+If we assume, that the eigenvalues in $\Lambda > 0$, then we can use backsolve Cholesky and backsolves for $C^{-1} d$ and $C^{-1}A$ expressions. We would then want to solve this system from right to left.
+
+
+\subsection{}
+
+We could write up three functions and one expression to solve this matrix: 
+
+\begin{enumerate}
+    \item q3.fun.solve(): The original way using $solve()$, which is the bad way
+    \item q3.fun.fast(): Use cholesky decomposition and some $backsolve()$'s to reduce the number of $solve()$'s
+    \item q3.fun.eigen(): Use eigen decomposition, cholesky decomposition, and $backsolve$'s to remove all $solve()$'s [MY ANSWER]
+    \item Simply $\beta = A^{-1}b$
+\end{enumerate}
+
+The third function is my answer and probably the most correct. The fourth is the most fun.
+<<eval = F>>=
+
+rm(list=ls())
+gc()
+require(MASS)
+
+m = 50
+p = 20
+n = 100
+
+X = matrix(rnorm(n*p), ncol = p)
+d = matrix(rnorm(p), ncol = 1)
+A = matrix(rnorm(m*p), ncol = p)
+b = matrix(rnorm(m), ncol = 1)
+
+#1
+q3.fun.solve <- function(X, d, A, b) {
+    
+    #get C
+    C = crossprod(X) #symmetric t(X) %*% X
+
+    #caculate parts of expression     
+    first  = solve(C) %*% d 
+    second = solve(C) %*% t(A) 
+    third  = ginv(A %*% solve(C) %*% t(A), tol = 1 * (.Machine$double.eps))
+    fourth = -A %*% solve(C) %*% d + b
+    
+    #solve from right ot left
+    first + (second %*% (third %*% fourth))
+}
+
+#2
+q3.fun.fast <- function(X, d, A, b) {
+    
+    #Chol decomposition for C = X^tX
+    U <- chol(crossprod(X), pivot = T) # U is upper-triangular 
+    
+    #caculate parts of expression    
+    first  = backsolve(U, d)
+    second = backsolve(U, t(A))
+    third  = ginv(A %*% backsolve(U, t(A)), tol = 1 * (.Machine$double.eps))
+    fourth = -A %*% backsolve(U, d) + b
+    
+    #solve from right ot left
+    first + (second %*% (third %*% fourth))
+}
+
+#3
+q3.fun.eigen <- function(X, d, A, b) {
+    
+    #Chol decomposition for C = X^tX
+    U <- chol(crossprod(X), pivot = T) # U is upper-triangular 
+
+    #calculate parts of expression    
+    first  = backsolve(U, d)
+    second = backsolve(U, t(A))
+    E      = A %*% ginv(C) %*% t(A)
+    E_eigen= eigen(E)
+    third = E_eigen$vectors %*% diag(1/E_eigen$values) %*% E_eigen$vectors
+    fourth = -A %*% backsolve(U, d) + b
+
+    #solve from right ot left
+    first + (second %*% (third %*% fourth))
+}
+
+#4
+beta <- solve(A) %*% b
+@
+
+%question 5
+\section{}
+
+
+\subsection{}
+We cannot compute this matrix directly, even if we use matrix decomposition simply because the resulting matrices would be very very large. Memory space would be the biggest concern, but it would also be computational difficult to perform computations with matrices that are millions x millions in size without first reducing them, or performing sparse matrix operations.
+
+\subsection{}
+
+We can rewrite the equations, by expanding $X$ an $X^\top$ in the equation for $\hat{\beta}$. From there we can simplify and perform matrix operations and will result in matrices of manageable size. See below.
+
+
+$$\begin{aligned}
+\text{If, }& \\
+\hat{X} &= Z(Z^\top Z)^{-1} Z^\top X \text{ and }\\
+\hat{X}^\top &= X^\top Z ((Z^\top Z)^{-1})^\top Z^\top \text{ then,}\\
+\beta &= (\hat{X}^\top \hat{X})^{-1} \hat{X}^\top y \\
+\beta &= [(X^\top Z ((Z^\top Z)^{-1})^\top Z^\top) (Z (Z^\top Z)^{-1} Z^\top X)]^{-1} (X^\top Z ((Z^\top Z)^{-1})^\top Z^\top) y \\  
+\beta &= (X^\top Z ((Z^\top Z)^{-1})^\top X)^{-1} X^\top Z ((Z^\top Z)^{-1})^\top Z^\top y \\
+\end{aligned}$$
+
+Now, in this form, we have a series of matrix operations and will HUGELY reduce the size of the matrices used for calculation of $\beta$
+
+$$\begin{aligned}
+A &= X^\top Z = Z^\top X : \text{(630x60M)(60Mx1)=630x1}\\
+B &= ((Z^\top Z)^{-1})^\top : \text{(630x60M)(60Mx630)=630x630}\\
+C &= Z^\top y :  \text{(630x60M)(60Mx630)=630x630} \\
+\end{aligned}$$
+
+From here, we could plug in these much smaller matrices, $A, B, C$, into the expanded equation from above:
+
+$$\begin{aligned}
+\beta &= (X^\top Z ((Z^\top Z)^{-1})^\top X)^{-1} X^\top Z ((Z^\top Z)^{-1})^\top Z^\top y \\
+\end{aligned}$$
+
+This should be fairly easy to compute even for a regular computer. If memory were of particular concern, we could also remove the original matrices, $Z, X, y$ from memory after we compute, $A, B, C$.
+
+
+%6
+\section{}
+
+<<eval = T>>=
+rm(list=ls())
+
+#generate z matrix
+n=100
+z = matrix(rnorm(n * n), ncol = n)
+
+#eigen decomp
+z_eigen = eigen( crossprod(z) )
+Gamma  <- z_eigen$vectors #Lambda
+
+#generate eigenvalues
+Lambda <- sapply(seq(-1, 32, 2), function(x) 
+    seq(0.1, 0.01, length.out = n) * 
+    10^floor(seq(x, -1, length.out = n)))
+
+#add text eigen values of all the same number
+Lambda <- cbind(rep(0.01, n), rep(5), rep(11), Lambda)
+head(Lambda)
+
+#calculate condition  number
+cond_num <- Lambda[1, ] / Lambda[100, ]
+cond_num
+
+#for loop to calculate z*, lambda*, and plot(lambda, lambda*)
+##calculate abs difference in lambda values
+par(mfrow = c(2, 3))
+Lambda_diff <- pd_check <- c()
+for (i in 1:ncol(Lambda)) {
+
+    #calcuate z* using generate Lambda's and Gamma from z
+    z_star <- Gamma %*% diag(Lambda[ , i]) %*% t(Gamma)
+    
+    #eigen decomp z* and get lambda*
+    Lambda_star <- eigen(z_star)$values
+    
+    #plot every fourth lambda vs lambda*
+    if (i %in% c(1, 5, 10, 15, 20)) {
+        plot(Lambda[ , i], Lambda_star,  
+         main = paste0("Cond.num: ", cond_num[i], 
+                       "\nMax(Lambda):", Lambda[1, i]))
+        abline(a = 0, b = 1)
+    } else {}
+    
+    #check P.D of z*
+    pd_check <- c(pd_check, 
+                  if (sum(Lambda_star < .Machine$double.eps) > 0) {0} else {1}
+    )
+
+    Lambda_diff <- c(Lambda_diff, 
+                     mean(abs(Lambda[ , i] - Lambda_star)))
+}
+
+#combine results
+result <- data.frame(cbind(pd_check, cond_num, Lambda[1, ], Lambda_diff))
+colnames(result) <- c("Lambda*_i > 0", "Condition Num.", "Max(Lambda)", "avg(abs(Lambda - Lambda*))")
+
+#print results table
+print(result)
+@
+
+At condition number $\ge 1e17$, the z* matrix is no longer positive definite.
+
+The error in the estimated eigenvalues doesn't begin to be noticeable until condition number $\approx 1e19$ with $max(\lambda)~\approx 1e16$. Until that point, the true and estimated eigenvalues are essentially the same with the $mean(|\Lambda - \Lambda*|)$ ranging from 1e-17 to 1e-5. Mean differenes less than machine epsilon are functionally 0.
+
+
+<<knit,eval=F,echo=F>>=
+###########
+#knit2pdf
+rm(list=ls())
+require(knitr)
+setwd("/Users/CamAdams/repos/STAT243/ps7/") 
+#Sweave2knitr("./ps6.rnw")
+knit2pdf(input = "ps7.Rnw", output = "ps7.tex")
+@
+
+\end{document}
+
+

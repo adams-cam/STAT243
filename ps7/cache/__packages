@@ -1,0 +1,10 @@
+base
+knitr
+bitops
+RCurl
+stringr
+pryr
+microbenchmark
+RSQLite
+MASS
+RColorBrewer

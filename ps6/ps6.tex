@@ -396,8 +396,11 @@ scp camadams@dtn.brc.berkeley.edu:/global/home/users/camadams/Christmas.txt \tex
 \end{kframe}
 \end{knitrout}
 
-R code to analyze world series data from wikipedia 
 
+
+
+
+R code to plot christmas data from wikipedia. 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -425,28 +428,50 @@ R code to analyze world series data from wikipedia
 \begin{alltt}
 \hlcom{#order data by date}
 \hlstd{ws} \hlkwb{<-} \hlstd{ws[}\hlkwd{order}\hlstd{(ws}\hlopt{$}\hlstd{V1), ]}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
 
+I am missing some of the data, not sure why, but I downloaded all hits for "Christmas" for the wikipedia data located in \url{/global/scratch/paciorek/wikistats_full/dated_for_R/}. In the plots you can see that hits for "Chrimstas" grow as time approaches Dec 25, and then sharply drop off towards the end of the year. This is broadly true for all languages and for English and  Spanish (who both use daylight savings). Russia doesn't have daylight savings, and there are virtually no hits during the time period.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
 \hlcom{#plot hits by date}
-\hlkwd{par}\hlstd{(}\hlkwc{mfrow}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{2}\hlstd{,}\hlnum{2}\hlstd{),} \hlkwc{mar} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,}\hlnum{4}\hlstd{,}\hlnum{4}\hlstd{,}\hlnum{1}\hlstd{))}
+\hlcom{#all languages}
+\hlkwd{par}\hlstd{(}\hlkwc{mfrow} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{mar} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{7}\hlstd{,} \hlnum{4}\hlstd{,} \hlnum{4}\hlstd{,} \hlnum{1}\hlstd{))}
 \hlkwd{plot}\hlstd{(ws}\hlopt{$}\hlstd{V1, ws}\hlopt{$}\hlstd{V4,} \hlkwc{type} \hlstd{=} \hlstr{'l'}\hlstd{,}
      \hlkwc{main} \hlstd{=} \hlstr{"All Languages"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Hits"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{"Date"}\hlstd{,} \hlkwc{xaxt} \hlstd{=} \hlstr{"n"}\hlstd{)}
 \hlkwd{axis}\hlstd{(}\hlnum{1}\hlstd{,} \hlkwc{las} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{0.75}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-7-1} 
+
+\end{knitrout}
+
+\pagebreak
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlcom{#English, spanish, russian}
+\hlkwd{par}\hlstd{(}\hlkwc{mfrow} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{2}\hlstd{,} \hlnum{2}\hlstd{))}
 \hlkwd{plot}\hlstd{(ws}\hlopt{$}\hlstd{V1[ws}\hlopt{$}\hlstd{V3} \hlopt{==} \hlstr{"en"}\hlstd{], ws}\hlopt{$}\hlstd{V4[ws}\hlopt{$}\hlstd{V3} \hlopt{==} \hlstr{"en"}\hlstd{],} \hlkwc{type} \hlstd{=} \hlstr{'l'}\hlstd{,}
      \hlkwc{main} \hlstd{=} \hlstr{"English"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Hits"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{"Date"}\hlstd{,} \hlkwc{xaxt} \hlstd{=} \hlstr{"n"}\hlstd{)}
 \hlkwd{axis}\hlstd{(}\hlnum{1}\hlstd{,} \hlkwc{las} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{0.75}\hlstd{)}
 \hlkwd{plot}\hlstd{(ws}\hlopt{$}\hlstd{V1[ws}\hlopt{$}\hlstd{V3} \hlopt{==} \hlstr{"es"}\hlstd{], ws}\hlopt{$}\hlstd{V4[ws}\hlopt{$}\hlstd{V3} \hlopt{==} \hlstr{"es"}\hlstd{],} \hlkwc{type} \hlstd{=} \hlstr{'l'}\hlstd{,}
      \hlkwc{main} \hlstd{=} \hlstr{"Spanish"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Hits"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{"Date"}\hlstd{,} \hlkwc{xaxt} \hlstd{=} \hlstr{"n"}\hlstd{)}
 \hlkwd{axis}\hlstd{(}\hlnum{1}\hlstd{,} \hlkwc{las} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{0.75}\hlstd{)}
-\hlkwd{plot}\hlstd{(ws}\hlopt{$}\hlstd{V1[ws}\hlopt{$}\hlstd{V3} \hlopt{==} \hlstr{"de"}\hlstd{], ws}\hlopt{$}\hlstd{V4[ws}\hlopt{$}\hlstd{V3} \hlopt{==} \hlstr{"de"}\hlstd{],} \hlkwc{type} \hlstd{=} \hlstr{'l'}\hlstd{,}
-     \hlkwc{main} \hlstd{=} \hlstr{"German"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Hits"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{"Date"}\hlstd{,} \hlkwc{xaxt} \hlstd{=} \hlstr{"n"}\hlstd{)}
+\hlkwd{plot}\hlstd{(ws}\hlopt{$}\hlstd{V1[ws}\hlopt{$}\hlstd{V3} \hlopt{==} \hlstr{"ru"}\hlstd{], ws}\hlopt{$}\hlstd{V4[ws}\hlopt{$}\hlstd{V3} \hlopt{==} \hlstr{"ru"}\hlstd{],} \hlkwc{type} \hlstd{=} \hlstr{'l'}\hlstd{,}
+     \hlkwc{main} \hlstd{=} \hlstr{"Russian"}\hlstd{,} \hlkwc{ylab} \hlstd{=} \hlstr{"Hits"}\hlstd{,} \hlkwc{xlab} \hlstd{=} \hlstr{"Date"}\hlstd{,} \hlkwc{xaxt} \hlstd{=} \hlstr{"n"}\hlstd{)}
 \hlkwd{axis}\hlstd{(}\hlnum{1}\hlstd{,} \hlkwc{las} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{cex.axis} \hlstd{=} \hlnum{0.75}\hlstd{)}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-6-1} 
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-8-1} 
 
 \end{knitrout}
 
-I am missing some of the data, not sure why, but I downloaded all hits for "Christmas" for the wikipedia data located in \url{/global/scratch/paciorek/wikistats_full/dated_for_R/}. In the plots you can see that hits for "Chrimstas" grow as time approaches Dec 25, and then sharply drop off towards the end of the year. This is broadly true for all languages and for English, Spanish, and German wikipedia. 
+
 
 %q4a
 \section{This question asks you to complete the exercise begun in ...}
@@ -675,11 +700,11 @@ $$\begin{aligned}
 
 Yes, and one would save memory and computational time.
 
+
+
+
+
 \end{document}
-
-
-
-
 
 
 %https://math.stackexchange.com/questions/217738/how-to-calculate-the-cost-of-cholesky-decomposition
