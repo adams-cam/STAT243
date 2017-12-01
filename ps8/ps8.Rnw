@@ -1,0 +1,506 @@
+\documentclass{article}
+\title{Problem Set 8}
+\author{Cameron Adams}
+
+
+\usepackage{float, hyperref}
+\usepackage[margin = 1in]{geometry}
+\usepackage{graphicx}
+\usepackage{sectsty}
+\usepackage{hyperref}
+\usepackage{amsmath}
+
+\begin{document}
+%\SweaveOpts{concordance=TRUE}
+
+\maketitle
+
+
+
+<<echo = F>>=
+rm(list = ls())
+
+#set working dir
+#setwd("/Users/CamAdams/Downloads/")
+
+#load packages
+require(RCurl)
+require(stringr)
+require(pryr)
+require(microbenchmark)
+
+#set gobal chunk options
+knitr::opts_chunk$set(cache=T,
+                      background='#F7F7F7',
+                      fig.width = 4)
+
+@
+
+%1
+\section{Let’s consider importance sampling and explore ...}
+%1a
+\subsection{Does the tail of the Pareto decay more quickly or more slowly than that of an exponential distribution?}
+
+The pareto distribution decays more slowly than the exponential distribution
+%1b
+\subsection{Suppose f is an exponential density with parameter value ...}
+
+
+<<>>=
+rm(list=ls())
+
+require(extraDistr)
+
+# parms
+m <- 10000
+a <- 3 
+b <- 2
+
+#generate x according to parato
+x <- rpareto(m, a = a, b = b)
+
+#generate f(x)
+f <- ifelse(x < 2, 0, dexp(x - 2))
+
+#generate g(x)
+g <- dpareto(x, a = a, b = b)
+
+#check g(x) satisfies paraeto conditions
+sum(g > 2 & g < 1e9)
+
+#h(x) = h * f / g
+h_x <- x*f/g # x
+h_x2 <- x^2*f/g # x^2
+
+#get expection
+mean(h_x)
+mean(h_x2)
+
+#histograms
+par_default <- par(no.readonly = TRUE)
+par(mfrow = c(2, 2), oma = c(0, 0, 2, 0))
+hist(h_x, main = "x f(x) / g(x)")
+hist(f / g, main = "f(x)/g(x)")
+hist(h_x2, main = "x^2 f(x) / g(x)")
+mtext(outer = T, text = "Problem 1b", font = 2)
+par(par_default)
+
+@
+
+It appears that large x values have very small weights and x values approaching 2 will have large weights
+%1c
+\subsection{Now suppose f is the Pareto distribution described above and our sampling...}
+
+<<>>=
+
+#generate x and f
+x <- rexp(m)+2 #exp
+f <- dpareto(x, a, b) #pareto
+
+#generate g
+g <- ifelse(x<2, 0, dexp(x-2))
+h_x <- x*f/g
+h_x2 <- x^2*f/g
+
+#get expection
+mean(h_x)
+mean(h_x2)
+
+#histograms
+par(mfrow = c(2, 2), oma = c(0, 0, 2, 0))
+hist(h_x, main = "Histogram of x f(x) / g(x)")
+hist(f / g, main = "Histogram of f(x)/g(x)")
+hist(h_x2, main = "Histogram of x^2 f(x) / g(x)")
+mtext(outer = T, text = "Problem 1c", font = 2)
+par(par_default)
+@
+The version of smapling will have large weights for values close 0, and smaller weights to values close to 0, with no/zero weight with values > 2.
+
+%2
+\section{Consider the “helical valley” function ...}
+
+<<>>=
+source()
+theta <- function(x1,x2) atan2(x2, x1)/(2*pi)
+
+f <- function(x) {
+  f1 <- 10*(x[3] - 10*theta(x[1],x[2]))
+  f2 <- 10*(sqrt(x[1]^2 + x[2]^2) - 1)
+  f3 <- x[3]
+  return(f1^2 + f2^2 + f3^2)
+}
+
+source("./ps8.R")
+
+#generate x1 and x2
+x1 <- x2 <- seq(-10, 10, length.out = n)
+x <- cbind(expand.grid(x1, x2), 0)
+
+#x3 = 0
+x <- cbind(expand.grid(x1, x2), 0)
+x3_0    <- matrix(apply(cbind(expand.grid(x1, x2), 0), 1, f), ncol = n)
+x3_5    <- matrix(apply(cbind(expand.grid(x1, x2), 5), 1, f), ncol = n)
+x3_neg5 <- matrix(apply(cbind(expand.grid(x1, x2), -5), 1, f), ncol = n)
+x3_10   <- matrix(apply(cbind(expand.grid(x1, x2), 10), 1, f), ncol = n)
+
+#plot contours
+par(mfrow = c(2, 2))
+contour(x1, x2, x3_0, main = "x3 = 0")
+contour(x1, x2, x3_5, main = "x3 = 5")
+contour(x1, x2, x3_neg5, main = "x3 = -5")
+contour(x1, x2, x3_10, main = "x3 = 10")
+par(par_default)
+
+#plot 3d
+par(mfrow=c(2, 2), mar = c(3, 0, 1, 0))
+persp(x1, x2, x3_0,main = "x3 = 0")
+persp(x1, x2, x3_5, main = "x3 = 5")
+persp(x1, x2, x3_neg5, main = "x3 = -5")
+persp(x1, x2, x3_10, main = "x3 = 10")
+par(par_default)
+
+#optim
+optim(par = c(0, 0, 0), fn = f)[1:2]
+optim(par = c(1, 1, 1), fn = f)[1:2]
+optim(par = c(20, 100, 1e5), fn = f)[1:2]
+optim(par = c(20, 100, 1e5), fn = f, method = "BFGS")[1:2]
+optim(par = c(-100, -1000, -1e5), fn = f)[1:2]
+optim(par = c(-100, -1000, -1e5), fn = f, method = "BFGS")[1:2]
+
+#nlm
+nlm(f, p = c(0, 0, 0))[1:2]
+nlm(f, p = c(1, 1, 1))[1:2]
+nlm(f, p = c(20, 100, 1e5))[1:2]
+nlm(f, p = c(-100, -1000, -1e5))[1:2]
+
+@
+
+I plotted the provided "helical valley" function using constant values of x3 to get slices of x1 and x2. From the plots, it looks like there will be local minima, and there are valleyes throughout the function. 
+
+The results from the opimizataions using optim() and nlm() indicate that there are indeed local minima. When using non-ideal non-scaled starting values, both optim and nlm converge to solutions that are incorrect. NLM performs better than optim with "Nelder-Mead" and "BFGS". 
+
+%3
+\section{Consider a censored regression problem. We assume ...}
+
+\subsection{Design an EM algorithm to estimate the 3 parameters, θ = (β0, β1, σ2
+), taking ...}
+
+
+$X:$ covariates
+$Y:$ outcome
+$Z:$ values of censored Y values
+
+Likelihood function:
+$$\begin{aligned}
+\mathcal{L}(\theta; X, Y, Z) &= \prod_{i=1}^c \frac{1}{\sqrt{2\pi\sigma^2}} exp(-\frac{1}{2\sigma^2} (z_i - (\beta_0 + \beta_1 x_i))^2) \prod_{j=c+1}^n  \frac{1}{\sqrt{2\sigma^2}}   exp(-\frac{1}{2\sigma^2} (y_i - (\beta_0 + \beta_1 x_j))^2) \\
+&= (\frac{1}{\sqrt{2\pi\sigma^2}})^n \prod_{i=1}^c  exp(-\frac{1}{2\sigma^2} (z_i - (\beta_0 + \beta_1 x_i))^2) \prod_{j=c+1}^n     exp(-\frac{1}{2\sigma^2} (y_i - (\beta_0 + \beta_1 x_j))^2)) \\
+\end{aligned}$$
+
+log-Likelihood function:
+$$\begin{aligned}
+\ell(\theta;X,Y,Z)=& -\frac{n}{2} log(2\pi \sigma^2) - \frac{1}{2\sigma^2} \sum^c_{i=1} (z_i - (\beta_0 + \beta_1x_i))^2 - \frac{1}{2\sigma^2} \sum^n_{j=c+1} (y_i - (\beta_0 + \beta_1x_j))^2 \\
+=& -\frac{n}{2}log(2\pi\sigma^2) - \frac{1}{2\sigma^2} \sum_{j=c+1}^n \sum^n_{j=c+1} (y_i - (\beta_0 + \beta_1x_j))^2 \\
+&- \frac{1}{2\sigma^2} \sum^c_{i=1} (z_i^2 - 2z_i (\beta_0 + \beta_1 x_i) + (\beta_0 + \beta_1x_i)^2) \\
+\end{aligned}$$
+
+Expectations and variance:
+$$\begin{aligned}
+E[\tau^*|X,Y,\theta_t] &= \frac{1}{\sigma_t}  (\tau - (\beta_{0,t} + \beta_{1,t}x_i)) \\
+E[\rho(\tau^*) |X,Y,\theta_t] &= \frac{\phi(\tau^*)}{(1-\Phi(\tau^*)^2)} \\
+E[z_i|X,Y,\theta_t] &= (\beta_{0,t} + \beta_{1,t}x_i) + \sigma_t\rho(\tau^*) \\
+var(z_i | X,Y,\theta_t) &= \sigma^2_t (1 + \tau^* \rho (\tau^*) - \rho(\tau^*)^2)
+\end{aligned}$$
+
+
+
+$Q$ function:
+$$\begin{aligned}
+Q(\theta | \theta_t)&= E[\ell(\theta; X, Y, Z)|X,Y, \theta_t] \\
+=& -\frac{n}{2} log(2 \pi \sigma^2) - \frac{1}{2\sigma^2} \sum^n_{j=c+1}(y_i - (\beta_0 + \beta_1x_j))^2 \\
+&+ -\frac{1}{2\sigma^2} \sum^c_{i=1}(E[z^2_i | X,Y,\theta_t] - 2E[z_i|X,Y,\theta_t](\beta_0 + \beta_1x_i) + (\beta_0 + \beta_1x_i)^2 )\\
+=& -\frac{n}{2} log(2\pi\sigma^2) - \frac{1}{2\sigma^2} \sum_{j=c+1}^n (y_i - (\beta_0 + \beta_1x_j))^2  \\
+&- \frac{1}{2\sigma^2} \sum_{i=1}^c (E[z_i|X,Y,\theta_t] - (\beta_0 + \beta_1x_i))^2 + \sum_{i=1}^c var(z_i|X,Y,\theta_t) 
+\end{aligned}$$
+
+Partial derivative for $\beta_0$
+$$\begin{aligned}
+\frac{\partial}{\partial \beta_0} Q(\theta|\theta_t)  =& -\frac{1}{2\sigma^2} \sum_{j=c+1}^n 2(y_i - (\beta_0 + \beta_1x_j))(-1) - \frac{1}{2\sigma^2} \sum_{i=1}^c 2(E[z_i|X,Y,\theta_t] - (\beta_0 + \beta_1 x_i)) (-1) \\
+=& \frac{1}{\sigma^2} (\sum_{j=c+1}^n(y_j - \beta_1x_j) - \sum_{j=c+1}^n \beta_0 + \sum_{i=1}^c (E[z_i|X,Y,\theta_t] - \beta_1x_i) - \sum_{i=1}^c\beta_o) \\
+=& \frac{1}{\sigma^2} (\sum^n_{j=c+1} (y_j - \beta_1x_j) - \sum_{i=1}^c (E[z_i|X,Y,\theta_t] - \beta_1x_i) - n\beta_0) \\
+=& 0 \\
+\text{solve for } \beta_0 & \\
+\hat{\beta_0} &= \frac{1}{n} (\sum^n_{j = c+1} (y-\beta_1 x_j) + \sum_{i=1}^c (E[z_i|X,Y,\theta_t] - \beta_1 x_i))
+\end{aligned}$$
+
+Partial derivative for $\beta_1$
+$$\begin{aligned}
+\frac{\partial}{\partial \beta_1} Q(\theta|\theta_t)  =&- \frac{1}{2\sigma^2} \sum_{j=c+1}^n 2(y_i - (\beta_0 + \beta_1x_j))(-x_j) - \frac{1}{2\sigma^2} \sum_{i=1}^c 2(E[z_i | X,Y,\theta_t] - (\beta_0 + \beta_1x_i)) (-x_i) \\
+=& \frac{1}{\sigma^2} (\sum_{j=c+1}^n x_j (y_j - \beta_0)- \sum^n_{j=c+1} \beta_1 x_j^2 + \sum_{i=1}^c x_i (E[z_i | X,Y,\theta_t] - \beta_0) - \sum_{i=1}^c \beta_1 x_i^2) \\
+=& \frac{1}{\sigma^2} (\sum^n_{j=c+1} x_j(y_j-\beta_0) + \sum_{i=1}^c x_i(E[z_i|X,Y,\theta_t] - \beta_0 ) - \beta_1 \sum_{k=1}^n x_k^2) \\
+=& 0 \\
+\text{solve for }\beta_1 &\\
+\hat{\beta_1} =& \frac{1}{\sum_{k=1}^nx_k^2} (\sum_{j=c+1}^n x_j (y_j - \beta_0) + \sum_{i=1}^c x_i(E[z_i|X,Y,\theta_t] - \beta_0))
+\end{aligned}$$
+
+Partial derivative for $\sigma^2$
+$$\begin{aligned}
+\frac{\partial}{\partial \sigma^2} Q(\theta|\theta_t)  =& -\frac{n}{2} (\frac{1}{2 \pi\sigma^2})(2\pi) + \frac{1}{2\sigma^4} \sum^n_{j=c+1} (y_j - (\beta_0 + \beta_1 x_j))^2 \\
+&+ \frac{1}{2\sigma^4} \sum_{i=1}^c (E[z_i|X,Y,\theta_t] - (\beta_0 + \beta_1x_i))^2 + \frac{1}{2\sigma^4} \sum_{i=1}^c var(z_i|X,Y,\theta_t) \\
+=& \frac{1}{2\sigma^4} (n\sigma^2 + \sum_{j=c+1}^n (y_i - (\beta_0 + \beta_1x_j))^2 ) \\
+&+ \sum_{i=1}^c (E[z_i|X,Y,\sigma^t] - (\beta_0 + \beta_1x_i)) + \sum_{i=1}^c var(z_i|X,Y,\theta_t) \\
+=&0 \\
+\text{solve for } \sigma^2 &\\
+\hat{sigma^2} =& \frac{1}{n} (\sum^n_{j=c+1}(y_j - (\beta_0 + \beta_1x_j))^2 + \sum_{i=1}^c (E[z_i | X,Y,\theta_t] - (\beta_0 + \beta_1x_i))^2 + \sum_{i=1}^c var(z_i|X,Y,\theta_t))
+\end{aligned}$$
+
+The $\sigma^2$ estimator is a ratio with a numerator contains the normal sum of squares for the non-censored data and the sum of squares for teh cnesored data, the varaicne of teh imputed censored data using $\theta^t$.
+%3.2
+\subsection{Propose reasonable starting values for the 3 parameters...}
+
+Using observed $Y_i$ values, if 
+\begin{itemize}
+\item $\bar{x} =   1 / (n - c) \sum_{j=c+1}^n$
+\item $\bar{y} = 1 / (n-c) \sum_{j=c+1}^n y_j$
+\end{itemize}
+then:
+$$\begin{aligned}
+\hat{\beta}_{0,0} &= 1 / (n-c) \sum_{j=c+1}^n (y_j - \hat{\beta}_{1,0}x_j) \\
+&... \\
+ &= 1 / (n-c) \sum_{j=c+1}^n \bigg( y_j - x_j \frac{ \sum_{j=c+1}^n x_j(y_i - \bar{y})}{ \sum_{j=c+1}^n x_j(x_j - \bar{x}) } \bigg) 
+\end{aligned}$$
+
+$$\begin{aligned}
+\hat{\beta}_{1,0} =& \frac{1}{ \sum_{j=c+1}^n x_j^2} \bigg( \sum_{j=c+1}^n (y_i - \hat{\beta}_{0,0})x_j \bigg) \\
+\hat{\beta}_{1,0}  \sum_{j=c+1}^n x_j^2 =& \sum_{j=c+1}^n x_j (y_j - \frac{1}{n-c} \sum_{j=c+1}^n (y_j - \hat{\beta}_{1,0}x_j)) \\
+=& \bigg(\sum_{j=c+1}^c x_j (y_j - \bar{y})\bigg)  - (\hat{\beta}_{1,0} \sum_{j=c+1}^n x_j \bar{x}) \\
+\hat{\beta}_{1,0} \sum_{j=c+1}^n x_j (x_j - \bar{x}) = \sum_{j = c+1}^n x_j (y_j - \bar{y}) \\
+\hat{\beta}_{1,0}  = &\frac{\sum_{j = c+1}^n x_j (y_j - \bar{y})}{\sum_{j=c+1}^n x_j (x_j - \bar{x})} 
+\end{aligned}$$
+
+
+$$\begin{aligned}
+\hat{\sigma}^2_0 =& \frac{1}{n} \sum_{j=c+1}^n (y_j - (\hat{\beta}_{0,0} + \hat{\beta}_{1,0}x_j))^2
+\end{aligned}$$
+
+\subsection{Write an R function, with auxiliary functions as needed...}
+
+EM function is below.
+<<>>=
+#generate data
+source("./ps8.R")
+
+#########
+# EM function
+##########
+
+em = function(x, y, tau, stop=1000, stopLike=1e-6) { # x: vector of x_i values
+    #y = vector of y_i values, with NA for censored data
+    #x = observted covariates
+    #b0 = beta0
+    #b1 = beta1
+    #sigma2 = sigma^2
+    #ll = log Likelihood
+    #tau: threshold for y_i censoring
+    #stop: maximum number of iterations through EM algorithm
+    #stopLike: diff of loglik of parameters of iterations 
+        #returns: data frame of (b_0, b_1, s^2, loglik) for each iteration
+    
+    #set output df  
+    results <- data.frame(matrix(NA, nrow=stop, ncol = 4))
+    names(results) <-  c("b0", "b1", "sigma2", "ll")
+    
+    #init parms 
+    missing <- is.na(y)
+    mod <- lm(y ~ x)
+    results[1, ] <- c(mod$coefficients, var(mod$residuals), logLik(mod)[[1]])
+  
+    for(i in 2:stop) {
+    
+        #E-step: impute censored data
+        mu <- results$b0[i - 1] + results$b1[i - 1] * x[missing] 
+        tau_star <- (tau - mu) / sqrt(results$sigma2[i - 1])
+        rho <- dnorm(tau_star) / (1 - pnorm(tau_star))
+        y[missing] <- mu + sqrt(results$sigma2[i - 1]) * rho
+        var_z <- results$sigma2[i - 1] * (1 + tau_star * rho-rho^2)
+    
+        #M-step: re-compute parameters
+        mod <- lm(y ~ x)
+        results[i, ] <- c(mod$coefficients,
+                        var(mod$residuals) + sum(var_z) / length(x),
+                        logLik(mod)[[1]])
+        
+        #evaluate stopping criteria
+        if(abs(results$ll[i] - results$ll[i - 1]) < stop) 
+        {return(results[1:i,])} 
+    }
+
+  return(results) 
+}
+@
+Let's check consistency of estimated paramters given a range of missing data.
+
+<<>>=
+########
+# evaluate EM 
+#########
+
+#full data
+parms_no_missing <- c(mod$coefficients, var(mod$residuals), logLik(mod)[[1]])
+names(parms_no_missing) <- c("b0", "b1", "sigma2", "logLik")
+    
+#20% missing y_i
+tau_80 <- quantile(yComplete, probs = c(0.80))
+y_80 <- yComplete
+y_80[y_80 > tau_80] <- NA
+em_80 <- em(x, y_80, tau_80)
+
+# 50% missing y_i 
+tau_50 <- quantile(yComplete)[3]
+y_50 <- yComplete
+y_50[y_50 > tau_50] <- NA
+em_50 <- em(x, y_50, tau_50)
+
+# 80% missing y_i
+tau_20 <- quantile(yComplete, probs = c(0.20))
+y_20 <- yComplete
+y_20[y_20 > tau_20] <- NA
+em_20 <- em(x, y_20, tau_20)
+@
+    
+    
+Let's check results of estimated paramters given a range of missing data.
+<<results="asis">>=
+est_parm <- rbind(parms_no_missing,
+                      tail(em_80, 1),
+                      tail(em_50, 1),
+                      tail(em_20, 1))
+
+colnames(est_parm) <- c("beta0", "beta1", "sigma2", "logLikelihood")
+rownames(est_parm) <- c("No miss", "20% miss", "50% miss", "80% miss")
+
+require(xtable)
+tbl=xtable(est_parm,caption="Parameter estimates for different missingness thresholds with user defined function.",comment=F,row.names=T,align="lcccc")
+
+print(tbl,floating=T,include.rownames=T,caption.placement="top",caption.width="35em")
+@
+It looks like accuracy of estiamtes (i.e. closer to full data estimates) decreaes as amont of missingness increases. This makes sense. The fact that there are better likelihoods for the EM's with more missing data coudl be due to teh fact that were are estimating/imputating values for $z_i$'s, and we may be doing this in a way that reduces variation, and the resulting likelihood will be larger than teh one with non-censored data.
+
+
+\subsection{A different approach to this problem just directly maximizes the ...}
+
+<<>>=
+require(truncnorm)
+
+
+###########
+# Loglike function
+##########
+
+loglikeFunc = function(theta, x, y, tau) {
+    
+    #theta = c(beta0, beta1, log(sigma2))
+    #x = x_i values (vector)
+    #y = y_i values, censored==NA (vector)
+    #tau = y_i censor threshold
+    
+    #estimate loglik for y_i
+    #theta <- mod_80_theta
+    #x = x
+    #y = y_80
+    #tau = tau_80
+    
+    beta0 = theta[1]
+    beta1 = theta[2]
+    sigma2 = exp(theta[3])
+    missing = is.na(y)
+    mu = beta0 + beta1 * x
+    loglik_y = sum(dnorm(y[!missing], mean = mu[!missing], 
+                          sd = sqrt(sigma2), 
+                          log = T))
+
+    #estimate z_i (missing y_i values)
+    tau_star = (tau - mu[missing]) / sqrt(sigma2)
+    rho = dnorm(tau_star) / (1 - pnorm(tau_star))
+    z = mu[missing] + sqrt(sigma2) * rho
+    var_z = sigma2 * (1 + tau_star * rho - rho^2)
+    loglik_z = sum(log(dtruncnorm(z, a = tau, mean = mu[missing], sd = sqrt(var_z))))
+
+    return((loglik_y + loglik_z))
+}
+
+#optim implementation
+    #mut specifiy fnscale = -1 to make optiom maximize our objective function and maximize our likelihood
+
+#20pp missing
+mod_80 <- lm(y_80 ~ x)
+mod_80_theta <- c(mod_80$coefficients, log(var(mod_80$residuals)))
+optim_80 <- optim(mod_80_theta, fn = loglikeFunc, x = x, y = y_80, tau = tau_80,
+                 control = list(parscale=c(0.1, 1, 1), fnscale = -1),
+                 method="BFGS", hessian = T)
+
+#80 pp missing
+mod_20 <- lm(y_20 ~ x)
+mod_20_theta  <- c(mod_20$coefficients, log(var(mod_20$residuals)))
+optim_20 <- optim(mod_20_theta, fn = loglikeFunc, x = x, y = y_20, tau = tau_20,
+                  control = list(parscale=c(0.1, 1, 1), fnscale = -1), 
+                  method="BFGS", hessian = T)
+
+
+res_optim <- rbind("No miss" = parms_no_missing,
+                   "20% miss" = c(optim_80$par, optim_80$value),
+                   "80% miss" = c(optim_20$par, optim_20$value))
+
+@
+
+<<results = 'asis'>>=
+#print latex tables of rsults of optim function
+require(xtable)
+tbl=xtable(res_optim,caption="Parameter estimates for different missingness thresholds with optim().",comment=F,row.names=T,align="lcccc")
+
+print(tbl,floating=T,include.rownames=T,caption.placement="top",caption.width="35em")
+
+@
+
+
+Overall, optim() performed better than my function, and had larger likelihoods than my function, but the results were fairly similar.  At missingness levels of 20\% and 80\% and both my function and optim() were similar, with more missingness reducing acuracy of estimates. There was more functuation betwen $\sigma^2$ estimates between optim and my fucntion. I didn't find any difference in performance using parscale arguments. 
+
+
+
+
+<<knit,eval=F,echo=F>>=
+###########
+#knit2pdf
+rm(list=ls())
+require(knitr)
+setwd("/Users/CamAdams/repos/STAT243/ps8/") 
+#Sweave2knitr("./ps8.rnw")
+knit2pdf(input = "ps8.Rnw", output = "ps8.tex")
+@
+
+\end{document}
+
+
+<<>>=
+
+require(ggplot2)
+require(RColorBrewer)
+
+set1 <- brewer.pal(9, "Set1")
+
+#create 1x4 plot of estimates for each estimator
+par(mfrow = c(1, 4))
+for (i in 1:4) {
+    
+    #set ylim
+    ylim <- c(min(est_parm[, i]), max(est_parm[, i]))
+    
+    #plot
+    plot(1, y = est_parm[1, i], ylim = ylim, xaxt = "n", xlab = "",
+         ylab  = "", main = colnames(est_parm)[i], 
+         pch = 15, col =set1[2])
+        points(1, y = est_parm[2, i], pch = 17, col =set1[4])
+    points(1, y = est_parm[3, i], pch = 18, col =set1[5])
+    points(1, y = est_parm[4, i], pch = 16, col =set1[7])
+
+}
+@

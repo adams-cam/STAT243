@@ -1,0 +1,12 @@
+base
+knitr
+bitops
+RCurl
+stringr
+pryr
+microbenchmark
+extraDistr
+ggplot2
+RColorBrewer
+xtable
+truncnorm
