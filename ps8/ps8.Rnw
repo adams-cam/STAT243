@@ -31,8 +31,7 @@ require(microbenchmark)
 
 #set gobal chunk options
 knitr::opts_chunk$set(cache=F,
-                      background='#F7F7F7',
-                      fig.width = 4)
+                      background='#F7F7F7')
 
 @
 
@@ -120,16 +119,6 @@ The version of smapling will have large weights for values close 0, and smaller 
 \section{Consider the “helical valley” function ...}
 
 <<>>=
-source()
-theta <- function(x1,x2) atan2(x2, x1)/(2*pi)
-
-f <- function(x) {
-  f1 <- 10*(x[3] - 10*theta(x[1],x[2]))
-  f2 <- 10*(sqrt(x[1]^2 + x[2]^2) - 1)
-  f3 <- x[3]
-  return(f1^2 + f2^2 + f3^2)
-}
-
 source("./ps8.R")
 
 #generate x1 and x2
@@ -145,10 +134,10 @@ x3_10   <- matrix(apply(cbind(expand.grid(x1, x2), 10), 1, f), ncol = n)
 
 #plot contours
 par(mfrow = c(2, 2))
-contour(x1, x2, x3_0, main = "x3 = 0")
-contour(x1, x2, x3_5, main = "x3 = 5")
-contour(x1, x2, x3_neg5, main = "x3 = -5")
-contour(x1, x2, x3_10, main = "x3 = 10")
+contour(x1, x2, x3_0, main = "x3 = 0", asp = 1)
+contour(x1, x2, x3_5, main = "x3 = 5", asp = 1)
+contour(x1, x2, x3_neg5, main = "x3 = -5", asp = 1)
+contour(x1, x2, x3_10, main = "x3 = 10", asp = 1)
 par(par_default)
 
 #plot 3d
