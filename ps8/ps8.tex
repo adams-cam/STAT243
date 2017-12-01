@@ -115,13 +115,13 @@ The pareto distribution decays more slowly than the exponential distribution
 \hlkwd{mean}\hlstd{(h_x)}
 \end{alltt}
 \begin{verbatim}
-## [1] 3.002851
+## [1] 2.998046
 \end{verbatim}
 \begin{alltt}
 \hlkwd{mean}\hlstd{(h_x2)}
 \end{alltt}
 \begin{verbatim}
-## [1] 9.998935
+## [1] 10.05176
 \end{verbatim}
 \begin{alltt}
 \hlcom{#histograms}
@@ -158,13 +158,13 @@ It appears that large x values have very small weights and x values approaching 
 \hlkwd{mean}\hlstd{(h_x)}
 \end{alltt}
 \begin{verbatim}
-## [1] 2.950998
+## [1] 2.943074
 \end{verbatim}
 \begin{alltt}
 \hlkwd{mean}\hlstd{(h_x2)}
 \end{alltt}
 \begin{verbatim}
-## [1] 10.56279
+## [1] 10.48022
 \end{verbatim}
 \begin{alltt}
 \hlcom{#histograms}
@@ -498,9 +498,11 @@ EM function is below.
                         \hlkwd{var}\hlstd{(mod}\hlopt{$}\hlstd{residuals)} \hlopt{+} \hlkwd{sum}\hlstd{(var_z)} \hlopt{/} \hlkwd{length}\hlstd{(x),}
                         \hlkwd{logLik}\hlstd{(mod)[[}\hlnum{1}\hlstd{]])}
 
-        \hlcom{#evaluate stopping criteria}
-        \hlkwa{if}\hlstd{(}\hlkwd{abs}\hlstd{(results}\hlopt{$}\hlstd{ll[i]} \hlopt{-} \hlstd{results}\hlopt{$}\hlstd{ll[i} \hlopt{-} \hlnum{1}\hlstd{])} \hlopt{<} \hlstd{stop)}
-        \hlstd{\{}\hlkwd{return}\hlstd{(results[}\hlnum{1}\hlopt{:}\hlstd{i,])\}}
+        \hlcom{#evaluate stopping criteria (diff in ll between iter < sqrt machine eps)}
+        \hlkwa{if}\hlstd{(}\hlkwd{abs}\hlstd{(results}\hlopt{$}\hlstd{ll[i]} \hlopt{-} \hlstd{results}\hlopt{$}\hlstd{ll[i} \hlopt{-} \hlnum{1}\hlstd{])} \hlopt{<} \hlkwd{sqrt}\hlstd{(.Machine}\hlopt{$}\hlstd{double.eps)) \{}
+            \hlkwd{return}\hlstd{(results[}\hlnum{1}\hlopt{:}\hlstd{i, ])}
+        \hlstd{\}}
+
     \hlstd{\}}
 
   \hlkwd{return}\hlstd{(results)}
@@ -546,32 +548,36 @@ Let's check consistency of estimated paramters given a range of missing data.
 Let's check results of estimated paramters given a range of missing data.
 \begin{kframe}
 \begin{alltt}
-\hlstd{est_parm} \hlkwb{<-} \hlkwd{rbind}\hlstd{(parms_no_missing,}
-                      \hlkwd{tail}\hlstd{(em_80,} \hlnum{1}\hlstd{),}
-                      \hlkwd{tail}\hlstd{(em_50,} \hlnum{1}\hlstd{),}
-                      \hlkwd{tail}\hlstd{(em_20,} \hlnum{1}\hlstd{))}
+\hlstd{res_userFun} \hlkwb{<-} \hlkwd{rbind}\hlstd{(}\hlkwd{c}\hlstd{(parms_no_missing,} \hlnum{0}\hlstd{),}
+                      \hlkwd{c}\hlstd{(}\hlkwd{tail}\hlstd{(em_80,} \hlnum{1}\hlstd{),} \hlkwd{nrow}\hlstd{(em_80)),}
+                      \hlkwd{c}\hlstd{(}\hlkwd{tail}\hlstd{(em_50,} \hlnum{1}\hlstd{),} \hlkwd{nrow}\hlstd{(em_50)),}
+                      \hlkwd{c}\hlstd{(}\hlkwd{tail}\hlstd{(em_20,} \hlnum{1}\hlstd{),} \hlkwd{nrow}\hlstd{(em_20)))}
 
-\hlkwd{colnames}\hlstd{(est_parm)} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"beta0"}\hlstd{,} \hlstr{"beta1"}\hlstd{,} \hlstr{"sigma2"}\hlstd{,} \hlstr{"logLikelihood"}\hlstd{)}
-\hlkwd{rownames}\hlstd{(est_parm)} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"No miss"}\hlstd{,} \hlstr{"20% miss"}\hlstd{,} \hlstr{"50% miss"}\hlstd{,} \hlstr{"80% miss"}\hlstd{)}
+\hlkwd{colnames}\hlstd{(res_userFun)} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"beta0"}\hlstd{,} \hlstr{"beta1"}\hlstd{,} \hlstr{"sigma2"}\hlstd{,} \hlstr{"logLikelihood"}\hlstd{,} \hlstr{"conv_iterations"}\hlstd{)}
+\hlkwd{rownames}\hlstd{(res_userFun)} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"No miss"}\hlstd{,} \hlstr{"20% miss"}\hlstd{,} \hlstr{"50% miss"}\hlstd{,} \hlstr{"80% miss"}\hlstd{)}
 
 \hlkwd{require}\hlstd{(xtable)}
-\hlstd{tbl}\hlkwb{=}\hlkwd{xtable}\hlstd{(est_parm,}\hlkwc{caption}\hlstd{=}\hlstr{"Parameter estimates for different missingness thresholds with user defined function."}\hlstd{,}\hlkwc{comment}\hlstd{=F,}\hlkwc{row.names}\hlstd{=T,}\hlkwc{align}\hlstd{=}\hlstr{"lcccc"}\hlstd{)}
+\hlstd{tbl} \hlkwb{<-} \hlkwd{xtable}\hlstd{(res_userFun,}
+              \hlkwc{caption}\hlstd{=}\hlkwd{paste0}\hlstd{(}\hlstr{"Parameter estimates for different missingness "}\hlstd{,}
+                             \hlstr{"thresholds with user defined function."}\hlstd{),}
+                             \hlkwc{comment}\hlstd{=F,}\hlkwc{row.names}\hlstd{=T,}\hlkwc{align}\hlstd{=}\hlstr{"lccccc"}\hlstd{)}
 
-\hlkwd{print}\hlstd{(tbl,}\hlkwc{floating}\hlstd{=T,}\hlkwc{include.rownames}\hlstd{=T,}\hlkwc{caption.placement}\hlstd{=}\hlstr{"top"}\hlstd{,}\hlkwc{caption.width}\hlstd{=}\hlstr{"35em"}\hlstd{)}
+\hlkwd{print}\hlstd{(tbl,} \hlkwc{floating} \hlstd{= T,} \hlkwc{include.rownames} \hlstd{= T,}
+      \hlkwc{caption.placement}\hlstd{=}\hlstr{"top"}\hlstd{,}\hlkwc{caption.width}\hlstd{=}\hlstr{"35em"}\hlstd{,} \hlkwc{digits} \hlstd{=} \hlnum{2}\hlstd{)}
 \end{alltt}
 \end{kframe}% latex table generated in R 3.4.1 by xtable 1.8-2 package
-% Fri Dec  1 11:16:11 2017
+% Fri Dec  1 13:33:39 2017
 \begin{table}[ht]
 \centering
 \parbox{35em}{\caption{Parameter estimates for different missingness thresholds with user defined function.}} 
-\begin{tabular}{lcccc}
+\begin{tabular}{lccccc}
   \hline
- & beta0 & beta1 & sigma2 & logLikelihood \\ 
+ & beta0 & beta1 & sigma2 & logLikelihood & conv\_iterations \\ 
   \hline
-No miss & 0.56 & 2.77 & 5.26 & -224.40 \\ 
-  20\% miss & 0.46 & 2.60 & 3.93 & -208.91 \\ 
-  50\% miss & 0.27 & 1.89 & 2.02 & -173.11 \\ 
-  80\% miss & -0.24 & 0.82 & 0.73 & -115.03 \\ 
+No miss & 0.56 & 2.77 & 5.26 & -224.40 & 0.00 \\ 
+  20\% miss & 0.46 & 2.83 & 4.68 & -216.26 & 20.00 \\ 
+  50\% miss & 0.34 & 2.82 & 3.96 & -199.32 & 55.00 \\ 
+  80\% miss & 0.33 & 2.92 & 3.98 & -176.27 & 240.00 \\ 
    \hline
 \end{tabular}
 \end{table}
@@ -584,8 +590,7 @@ It looks like accuracy of estiamtes (i.e. closer to full data estimates) decreae
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlkwd{require}\hlstd{(truncnorm)}
-
+\hlkwd{require}\hlstd{(truncnorm)} \hlcom{#for truncated norm distribution}
 
 \hlcom{###########}
 \hlcom{# Loglike function}
@@ -597,30 +602,32 @@ It looks like accuracy of estiamtes (i.e. closer to full data estimates) decreae
     \hlcom{#x = x_i values (vector)}
     \hlcom{#y = y_i values, censored==NA (vector)}
     \hlcom{#tau = y_i censor threshold}
+    \hlcom{#b0 = beta0}
+    \hlcom{#b1 = beta1}
+    \hlcom{#sigma2 = sigma^2}
+    \hlcom{#missingY = missing values of Y (Z)}
+    \hlcom{#mu = estimate of Y (or Z) given coef, beta's and cov, x}
+
+    \hlcom{#get parameters and other values for calcs}
+    \hlstd{b0} \hlkwb{<-} \hlstd{theta[}\hlnum{1}\hlstd{]}
+    \hlstd{b1} \hlkwb{<-} \hlstd{theta[}\hlnum{2}\hlstd{]}
+    \hlstd{sigma2} \hlkwb{<-} \hlkwd{exp}\hlstd{(theta[}\hlnum{3}\hlstd{])}
+    \hlstd{missingY} \hlkwb{<-} \hlkwd{is.na}\hlstd{(y)}
+    \hlstd{mu} \hlkwb{<-} \hlstd{b0} \hlopt{+} \hlstd{b1} \hlopt{*} \hlstd{x}
 
     \hlcom{#estimate loglik for y_i}
-    \hlcom{#theta <- mod_80_theta}
-    \hlcom{#x = x}
-    \hlcom{#y = y_80}
-    \hlcom{#tau = tau_80}
-
-    \hlstd{beta0} \hlkwb{=} \hlstd{theta[}\hlnum{1}\hlstd{]}
-    \hlstd{beta1} \hlkwb{=} \hlstd{theta[}\hlnum{2}\hlstd{]}
-    \hlstd{sigma2} \hlkwb{=} \hlkwd{exp}\hlstd{(theta[}\hlnum{3}\hlstd{])}
-    \hlstd{missing} \hlkwb{=} \hlkwd{is.na}\hlstd{(y)}
-    \hlstd{mu} \hlkwb{=} \hlstd{beta0} \hlopt{+} \hlstd{beta1} \hlopt{*} \hlstd{x}
-    \hlstd{loglik_y} \hlkwb{=} \hlkwd{sum}\hlstd{(}\hlkwd{dnorm}\hlstd{(y[}\hlopt{!}\hlstd{missing],} \hlkwc{mean} \hlstd{= mu[}\hlopt{!}\hlstd{missing],}
+    \hlstd{loglike_y} \hlkwb{<-} \hlkwd{sum}\hlstd{(}\hlkwd{dnorm}\hlstd{(y[}\hlopt{!}\hlstd{missingY],} \hlkwc{mean} \hlstd{= mu[}\hlopt{!}\hlstd{missingY],}
                           \hlkwc{sd} \hlstd{=} \hlkwd{sqrt}\hlstd{(sigma2),}
                           \hlkwc{log} \hlstd{= T))}
 
-    \hlcom{#estimate z_i (missing y_i values)}
-    \hlstd{tau_star} \hlkwb{=} \hlstd{(tau} \hlopt{-} \hlstd{mu[missing])} \hlopt{/} \hlkwd{sqrt}\hlstd{(sigma2)}
-    \hlstd{rho} \hlkwb{=} \hlkwd{dnorm}\hlstd{(tau_star)} \hlopt{/} \hlstd{(}\hlnum{1} \hlopt{-} \hlkwd{pnorm}\hlstd{(tau_star))}
-    \hlstd{z} \hlkwb{=} \hlstd{mu[missing]} \hlopt{+} \hlkwd{sqrt}\hlstd{(sigma2)} \hlopt{*} \hlstd{rho}
-    \hlstd{var_z} \hlkwb{=} \hlstd{sigma2} \hlopt{*} \hlstd{(}\hlnum{1} \hlopt{+} \hlstd{tau_star} \hlopt{*} \hlstd{rho} \hlopt{-} \hlstd{rho}\hlopt{^}\hlnum{2}\hlstd{)}
-    \hlstd{loglik_z} \hlkwb{=} \hlkwd{sum}\hlstd{(}\hlkwd{log}\hlstd{(}\hlkwd{dtruncnorm}\hlstd{(z,} \hlkwc{a} \hlstd{= tau,} \hlkwc{mean} \hlstd{= mu[missing],} \hlkwc{sd} \hlstd{=} \hlkwd{sqrt}\hlstd{(var_z))))}
+    \hlcom{#estimate z_i (missingY y_i values)}
+    \hlstd{tau_star} \hlkwb{<-} \hlstd{(tau} \hlopt{-} \hlstd{mu[missingY])} \hlopt{/} \hlkwd{sqrt}\hlstd{(sigma2)}
+    \hlstd{rho} \hlkwb{<-} \hlkwd{dnorm}\hlstd{(tau_star)} \hlopt{/} \hlstd{(}\hlnum{1} \hlopt{-} \hlkwd{pnorm}\hlstd{(tau_star))}
+    \hlstd{z} \hlkwb{<-} \hlstd{mu[missingY]} \hlopt{+} \hlkwd{sqrt}\hlstd{(sigma2)} \hlopt{*} \hlstd{rho}
+    \hlstd{var_z} \hlkwb{<-} \hlstd{sigma2} \hlopt{*} \hlstd{(}\hlnum{1} \hlopt{+} \hlstd{tau_star} \hlopt{*} \hlstd{rho} \hlopt{-} \hlstd{rho}\hlopt{^}\hlnum{2}\hlstd{)}
+    \hlstd{loglike_z} \hlkwb{<-} \hlkwd{sum}\hlstd{(}\hlkwd{log}\hlstd{(}\hlkwd{dtruncnorm}\hlstd{(z,} \hlkwc{a} \hlstd{= tau,} \hlkwc{mean} \hlstd{= mu[missingY],} \hlkwc{sd} \hlstd{=} \hlkwd{sqrt}\hlstd{(var_z))))}
 
-    \hlkwd{return}\hlstd{((loglik_y} \hlopt{+} \hlstd{loglik_z))}
+    \hlkwd{return}\hlstd{((loglike_y} \hlopt{+} \hlstd{loglike_z))}
 \hlstd{\}}
 
 \hlcom{#optim implementation}
@@ -639,42 +646,43 @@ It looks like accuracy of estiamtes (i.e. closer to full data estimates) decreae
 \hlstd{optim_20} \hlkwb{<-} \hlkwd{optim}\hlstd{(mod_20_theta,} \hlkwc{fn} \hlstd{= loglikeFunc,} \hlkwc{x} \hlstd{= x,} \hlkwc{y} \hlstd{= y_20,} \hlkwc{tau} \hlstd{= tau_20,}
                   \hlkwc{control} \hlstd{=} \hlkwd{list}\hlstd{(}\hlkwc{parscale}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{0.1}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{1}\hlstd{),} \hlkwc{fnscale} \hlstd{=} \hlopt{-}\hlnum{1}\hlstd{),}
                   \hlkwc{method}\hlstd{=}\hlstr{"BFGS"}\hlstd{,} \hlkwc{hessian} \hlstd{= T)}
-
-
-\hlstd{res_optim} \hlkwb{<-} \hlkwd{rbind}\hlstd{(}\hlstr{"No miss"} \hlstd{= parms_no_missing,}
-                   \hlstr{"20% miss"} \hlstd{=} \hlkwd{c}\hlstd{(optim_80}\hlopt{$}\hlstd{par, optim_80}\hlopt{$}\hlstd{value),}
-                   \hlstr{"80% miss"} \hlstd{=} \hlkwd{c}\hlstd{(optim_20}\hlopt{$}\hlstd{par, optim_20}\hlopt{$}\hlstd{value))}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
 
 \begin{kframe}
 \begin{alltt}
+\hlstd{res_optim} \hlkwb{<-} \hlkwd{rbind}\hlstd{(}\hlstr{"No miss"} \hlstd{=} \hlkwd{c}\hlstd{(parms_no_missing,} \hlkwd{rep}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{2}\hlstd{)),}
+                   \hlstr{"20% miss"} \hlstd{=} \hlkwd{c}\hlstd{(optim_80}\hlopt{$}\hlstd{par, optim_80}\hlopt{$}\hlstd{value, optim_80}\hlopt{$}\hlstd{counts),}
+                   \hlstr{"80% miss"} \hlstd{=} \hlkwd{c}\hlstd{(optim_20}\hlopt{$}\hlstd{par, optim_20}\hlopt{$}\hlstd{value, optim_20}\hlopt{$}\hlstd{counts))}
+\hlkwd{colnames}\hlstd{(res_optim)} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"beta_0"}\hlstd{,} \hlstr{"beta_1"}\hlstd{,} \hlstr{"sigma^2"}\hlstd{,}
+                         \hlstr{"loglike"}\hlstd{,} \hlstr{"count.function"}\hlstd{,} \hlstr{"count.gradient"}\hlstd{)}
+
 \hlcom{#print latex tables of rsults of optim function}
 \hlkwd{require}\hlstd{(xtable)}
-\hlstd{tbl}\hlkwb{=}\hlkwd{xtable}\hlstd{(res_optim,}\hlkwc{caption}\hlstd{=}\hlstr{"Parameter estimates for different missingness thresholds with optim()."}\hlstd{,}\hlkwc{comment}\hlstd{=F,}\hlkwc{row.names}\hlstd{=T,}\hlkwc{align}\hlstd{=}\hlstr{"lcccc"}\hlstd{)}
+\hlstd{tbl}\hlkwb{=}\hlkwd{xtable}\hlstd{(res_optim,}\hlkwc{caption}\hlstd{=}\hlstr{"Parameter estimates for different missingness thresholds with optim()."}\hlstd{,}\hlkwc{comment}\hlstd{=F,}\hlkwc{row.names}\hlstd{=T,}\hlkwc{align}\hlstd{=}\hlstr{"lcccccc"}\hlstd{)}
 
 \hlkwd{print}\hlstd{(tbl,}\hlkwc{floating}\hlstd{=T,}\hlkwc{include.rownames}\hlstd{=T,}\hlkwc{caption.placement}\hlstd{=}\hlstr{"top"}\hlstd{,}\hlkwc{caption.width}\hlstd{=}\hlstr{"35em"}\hlstd{)}
 \end{alltt}
 \end{kframe}% latex table generated in R 3.4.1 by xtable 1.8-2 package
-% Fri Dec  1 11:16:12 2017
+% Fri Dec  1 13:33:39 2017
 \begin{table}[ht]
 \centering
 \parbox{35em}{\caption{Parameter estimates for different missingness thresholds with optim().}} 
-\begin{tabular}{lcccc}
+\begin{tabular}{lcccccc}
   \hline
- & b0 & b1 & sigma2 & logLik \\ 
+ & beta\_0 & beta\_1 & sigma\verb|^|2 & loglike & count.function & count.gradient \\ 
   \hline
-No miss & 0.56 & 2.77 & 5.26 & -224.40 \\ 
-  20\% miss & 0.69 & 2.44 & 1.35 & -204.51 \\ 
-  80\% miss & -0.34 & 0.60 & -0.86 & -73.95 \\ 
+No miss & 0.56 & 2.77 & 5.26 & -224.40 & 0.00 & 0.00 \\ 
+  20\% miss & 0.69 & 2.44 & 1.35 & -204.51 & 37.00 & 22.00 \\ 
+  80\% miss & -0.34 & 0.60 & -0.86 & -73.95 & 44.00 & 16.00 \\ 
    \hline
 \end{tabular}
 \end{table}
 
 
 
-Overall, optim() performed better than my function, and had larger likelihoods than my function, but the results were fairly similar.  At missingness levels of 20\% and 80\% and both my function and optim() were similar, with more missingness reducing acuracy of estimates. There was more functuation betwen $\sigma^2$ estimates between optim and my fucntion. I didn't find any difference in performance using parscale arguments. 
+Overall, optim() performed better than my function, and had larger likelihoods than my function, but the results were fairly similar.  At missingness levels of 20\% and 80\% and both my function and optim() were similar, with more missingness reducing acuracy of estimates. There was more functuation betwen $\sigma^2$ estimates between optim and my fucntion. Optim() also converged faster than my function when there was a lot of missing data, convergence was about teh same when only 20\% of $y_i$ was missing. I didn't find any difference in performance using parscale arguments. 
 
 
 
@@ -709,7 +717,14 @@ Overall, optim() performed better than my function, and had larger likelihoods t
 
 \hlstd{\}}
 \end{alltt}
-\end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-10-1} 
 
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'est\_parm' not found}}\begin{alltt}
+\hlkwa{if}\hlstd{(}\hlkwd{abs}\hlstd{(results}\hlopt{$}\hlstd{ll[i]} \hlopt{-} \hlstd{results}\hlopt{$}\hlstd{ll[i} \hlopt{-} \hlnum{1}\hlstd{])} \hlopt{==} \hlnum{0}\hlstd{) \{}
+            \hlkwd{return}\hlstd{(results[}\hlnum{1}\hlopt{:}\hlstd{i, ])}
+        \hlstd{\}}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in eval(expr, envir, enclos): object 'results' not found}}\end{kframe}
 \end{knitrout}

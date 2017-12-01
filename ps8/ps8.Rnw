@@ -30,7 +30,7 @@ require(pryr)
 require(microbenchmark)
 
 #set gobal chunk options
-knitr::opts_chunk$set(cache=T,
+knitr::opts_chunk$set(cache=F,
                       background='#F7F7F7',
                       fig.width = 4)
 
@@ -329,9 +329,11 @@ em = function(x, y, tau, stop=1000, stopLike=1e-6) { # x: vector of x_i values
                         var(mod$residuals) + sum(var_z) / length(x),
                         logLik(mod)[[1]])
         
-        #evaluate stopping criteria
-        if(abs(results$ll[i] - results$ll[i - 1]) < stop) 
-        {return(results[1:i,])} 
+        #evaluate stopping criteria (diff in ll between iter < sqrt machine eps)
+        if(abs(results$ll[i] - results$ll[i - 1]) < sqrt(.Machine$double.eps)) {
+            return(results[1:i, ])
+        }
+        
     }
 
   return(results) 
@@ -370,18 +372,22 @@ em_20 <- em(x, y_20, tau_20)
     
 Let's check results of estimated paramters given a range of missing data.
 <<results="asis">>=
-est_parm <- rbind(parms_no_missing,
-                      tail(em_80, 1),
-                      tail(em_50, 1),
-                      tail(em_20, 1))
+res_userFun <- rbind(c(parms_no_missing, 0),
+                      c(tail(em_80, 1), nrow(em_80)),
+                      c(tail(em_50, 1), nrow(em_50)),
+                      c(tail(em_20, 1), nrow(em_20)))
 
-colnames(est_parm) <- c("beta0", "beta1", "sigma2", "logLikelihood")
-rownames(est_parm) <- c("No miss", "20% miss", "50% miss", "80% miss")
+colnames(res_userFun) <- c("beta0", "beta1", "sigma2", "logLikelihood", "conv_iterations")
+rownames(res_userFun) <- c("No miss", "20% miss", "50% miss", "80% miss")
 
 require(xtable)
-tbl=xtable(est_parm,caption="Parameter estimates for different missingness thresholds with user defined function.",comment=F,row.names=T,align="lcccc")
+tbl <- xtable(res_userFun, 
+              caption=paste0("Parameter estimates for different missingness ", 
+                             "thresholds with user defined function."),
+                             comment=F,row.names=T,align="lccccc")
 
-print(tbl,floating=T,include.rownames=T,caption.placement="top",caption.width="35em")
+print(tbl, floating = T, include.rownames = T, 
+      caption.placement="top",caption.width="35em", digits = 2)
 @
 It looks like accuracy of estiamtes (i.e. closer to full data estimates) decreaes as amont of missingness increases. This makes sense. The fact that there are better likelihoods for the EM's with more missing data coudl be due to teh fact that were are estimating/imputating values for $z_i$'s, and we may be doing this in a way that reduces variation, and the resulting likelihood will be larger than teh one with non-censored data.
 
@@ -389,8 +395,7 @@ It looks like accuracy of estiamtes (i.e. closer to full data estimates) decreae
 \subsection{A different approach to this problem just directly maximizes the ...}
 
 <<>>=
-require(truncnorm)
-
+require(truncnorm) #for truncated norm distribution
 
 ###########
 # Loglike function
@@ -402,30 +407,32 @@ loglikeFunc = function(theta, x, y, tau) {
     #x = x_i values (vector)
     #y = y_i values, censored==NA (vector)
     #tau = y_i censor threshold
+    #b0 = beta0
+    #b1 = beta1
+    #sigma2 = sigma^2
+    #missingY = missing values of Y (Z)
+    #mu = estimate of Y (or Z) given coef, beta's and cov, x
+    
+    #get parameters and other values for calcs
+    b0 <- theta[1]
+    b1 <- theta[2]
+    sigma2 <- exp(theta[3])
+    missingY <- is.na(y)
+    mu <- b0 + b1 * x
     
     #estimate loglik for y_i
-    #theta <- mod_80_theta
-    #x = x
-    #y = y_80
-    #tau = tau_80
-    
-    beta0 = theta[1]
-    beta1 = theta[2]
-    sigma2 = exp(theta[3])
-    missing = is.na(y)
-    mu = beta0 + beta1 * x
-    loglik_y = sum(dnorm(y[!missing], mean = mu[!missing], 
+    loglike_y <- sum(dnorm(y[!missingY], mean = mu[!missingY],
                           sd = sqrt(sigma2), 
                           log = T))
 
-    #estimate z_i (missing y_i values)
-    tau_star = (tau - mu[missing]) / sqrt(sigma2)
-    rho = dnorm(tau_star) / (1 - pnorm(tau_star))
-    z = mu[missing] + sqrt(sigma2) * rho
-    var_z = sigma2 * (1 + tau_star * rho - rho^2)
-    loglik_z = sum(log(dtruncnorm(z, a = tau, mean = mu[missing], sd = sqrt(var_z))))
+    #estimate z_i (missingY y_i values)
+    tau_star <- (tau - mu[missingY]) / sqrt(sigma2)
+    rho <- dnorm(tau_star) / (1 - pnorm(tau_star))
+    z <- mu[missingY] + sqrt(sigma2) * rho
+    var_z <- sigma2 * (1 + tau_star * rho - rho^2)
+    loglike_z <- sum(log(dtruncnorm(z, a = tau, mean = mu[missingY], sd = sqrt(var_z))))
 
-    return((loglik_y + loglik_z))
+    return((loglike_y + loglike_z))
 }
 
 #optim implementation
@@ -446,23 +453,28 @@ optim_20 <- optim(mod_20_theta, fn = loglikeFunc, x = x, y = y_20, tau = tau_20,
                   method="BFGS", hessian = T)
 
 
-res_optim <- rbind("No miss" = parms_no_missing,
-                   "20% miss" = c(optim_80$par, optim_80$value),
-                   "80% miss" = c(optim_20$par, optim_20$value))
 
 @
 
 <<results = 'asis'>>=
+
+
+res_optim <- rbind("No miss" = c(parms_no_missing, rep(0, 2)),
+                   "20% miss" = c(optim_80$par, optim_80$value, optim_80$counts),
+                   "80% miss" = c(optim_20$par, optim_20$value, optim_20$counts))
+colnames(res_optim) <- c("beta_0", "beta_1", "sigma^2", 
+                         "loglike", "count.function", "count.gradient")
+
 #print latex tables of rsults of optim function
 require(xtable)
-tbl=xtable(res_optim,caption="Parameter estimates for different missingness thresholds with optim().",comment=F,row.names=T,align="lcccc")
+tbl=xtable(res_optim,caption="Parameter estimates for different missingness thresholds with optim().",comment=F,row.names=T,align="lcccccc")
 
 print(tbl,floating=T,include.rownames=T,caption.placement="top",caption.width="35em")
 
 @
 
 
-Overall, optim() performed better than my function, and had larger likelihoods than my function, but the results were fairly similar.  At missingness levels of 20\% and 80\% and both my function and optim() were similar, with more missingness reducing acuracy of estimates. There was more functuation betwen $\sigma^2$ estimates between optim and my fucntion. I didn't find any difference in performance using parscale arguments. 
+Overall, optim() performed better than my function, and had larger likelihoods than my function, but the results were fairly similar.  At missingness levels of 20\% and 80\% and both my function and optim() were similar, with more missingness reducing acuracy of estimates. There was more functuation betwen $\sigma^2$ estimates between optim and my fucntion. Optim() also converged faster than my function when there was a lot of missing data, convergence was about teh same when only 20\% of $y_i$ was missing. I didn't find any difference in performance using parscale arguments. 
 
 
 
@@ -503,4 +515,9 @@ for (i in 1:4) {
     points(1, y = est_parm[4, i], pch = 16, col =set1[7])
 
 }
+
+
+if(abs(results$ll[i] - results$ll[i - 1]) == 0) {
+            return(results[1:i, ])
+        }
 @
