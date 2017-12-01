@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  1 DEC 2017 13:33
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  1 DEC 2017 13:36
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -488,7 +488,7 @@ Here is how much of TeX's memory you used:
  9843 multiletter control sequences out of 15000+600000
  9051 words of font info for 34 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 29i,11n,32p,615b,384s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 29i,11n,32p,617b,384s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb
 ></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb>
 </usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmitt10.pfb>
@@ -501,7 +501,7 @@ al/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/
 texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/t
 exlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/tex
 live/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on ps8.pdf (15 pages, 740356 bytes).
+Output written on ps8.pdf (15 pages, 740352 bytes).
 PDF statistics:
  197 PDF objects out of 1000 (max. 8388607)
  158 compressed objects within 2 object streams

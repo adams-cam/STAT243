@@ -566,7 +566,7 @@ Let's check results of estimated paramters given a range of missing data.
       \hlkwc{caption.placement}\hlstd{=}\hlstr{"top"}\hlstd{,}\hlkwc{caption.width}\hlstd{=}\hlstr{"35em"}\hlstd{,} \hlkwc{digits} \hlstd{=} \hlnum{2}\hlstd{)}
 \end{alltt}
 \end{kframe}% latex table generated in R 3.4.1 by xtable 1.8-2 package
-% Fri Dec  1 13:33:39 2017
+% Fri Dec  1 13:36:39 2017
 \begin{table}[ht]
 \centering
 \parbox{35em}{\caption{Parameter estimates for different missingness thresholds with user defined function.}} 
@@ -665,7 +665,7 @@ It looks like accuracy of estiamtes (i.e. closer to full data estimates) decreae
 \hlkwd{print}\hlstd{(tbl,}\hlkwc{floating}\hlstd{=T,}\hlkwc{include.rownames}\hlstd{=T,}\hlkwc{caption.placement}\hlstd{=}\hlstr{"top"}\hlstd{,}\hlkwc{caption.width}\hlstd{=}\hlstr{"35em"}\hlstd{)}
 \end{alltt}
 \end{kframe}% latex table generated in R 3.4.1 by xtable 1.8-2 package
-% Fri Dec  1 13:33:39 2017
+% Fri Dec  1 13:36:39 2017
 \begin{table}[ht]
 \centering
 \parbox{35em}{\caption{Parameter estimates for different missingness thresholds with optim().}} 
@@ -682,7 +682,7 @@ No miss & 0.56 & 2.77 & 5.26 & -224.40 & 0.00 & 0.00 \\
 
 
 
-Overall, optim() performed better than my function, and had larger likelihoods than my function, but the results were fairly similar.  At missingness levels of 20\% and 80\% and both my function and optim() were similar, with more missingness reducing acuracy of estimates. There was more functuation betwen $\sigma^2$ estimates between optim and my fucntion. Optim() also converged faster than my function when there was a lot of missing data, convergence was about teh same when only 20\% of $y_i$ was missing. I didn't find any difference in performance using parscale arguments. 
+Overall, optim() performed better than my function, and had larger likelihoods than my function, but the results were fairly similar.  At missingness levels of 20\% and 80\% and both my function and optim() were similar, with more missingness reducing acuracy of estimates. There was more functuation betwen $\sigma^2$ estimates between optim and my fucntion. Optim() also converged faster than my function when there was a lot of missing data, but my function converged faster when only 20\% of $y_i$ was missing. I didn't find any difference in performance using parscale arguments. 
 
 
 

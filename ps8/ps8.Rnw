@@ -474,7 +474,7 @@ print(tbl,floating=T,include.rownames=T,caption.placement="top",caption.width="3
 @
 
 
-Overall, optim() performed better than my function, and had larger likelihoods than my function, but the results were fairly similar.  At missingness levels of 20\% and 80\% and both my function and optim() were similar, with more missingness reducing acuracy of estimates. There was more functuation betwen $\sigma^2$ estimates between optim and my fucntion. Optim() also converged faster than my function when there was a lot of missing data, convergence was about teh same when only 20\% of $y_i$ was missing. I didn't find any difference in performance using parscale arguments. 
+Overall, optim() performed better than my function, and had larger likelihoods than my function, but the results were fairly similar.  At missingness levels of 20\% and 80\% and both my function and optim() were similar, with more missingness reducing acuracy of estimates. There was more functuation betwen $\sigma^2$ estimates between optim and my fucntion. Optim() also converged faster than my function when there was a lot of missing data, but my function converged faster when only 20\% of $y_i$ was missing. I didn't find any difference in performance using parscale arguments. 
 
 
 
