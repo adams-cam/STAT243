@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "################################################################\n#\n# evaluate fitness function\n# Xu, Weijie; Chen, Yuwen; Adams, Cameron; Zhou, Yilin\n#\n# Final Projct\n# STAT 243\n# Fall 2017\n#\n################################################################\n\n\n\n#' Function to evaluate fitness of chromosomes.\n#'\n#' This function uses default or user supplied ojective functions, rank functions, to evaluate fitness of a generation chromosomes. This process can be parallized if \\code{parallel = TRUE}. Parallel operations uses \\code{\\link{mclapply}} to parallelize operations. Number of parallel operations is determined by \\code{\\link{detectCores} - 1}. Prescheduling = TRUE is only option for compuations. It is advised to only use parallelization if inputed a large dataframe with great than 1000 oberations and/or predictors.\n#'\n#' @param generation_t0 a matrix of parent chromosomes to be evaluated. Columns correspond to predictors/genes and rows correspond to parents/chromosomes.\n#' @param Y vector of response variable\n#' @param X a matrix or dataframe of predictor variables\n#' @param family a character string describing the error distribution and link function to be used in the model. Default is gaussian.\n#' @param calc_objective_function a function for optimizies \\code{optimize}. Default is \\code{\\link{stats::AIC}}. User can specify custom function.\n#' @param rank_objective_function a function that ranks parents by their fitness as determined by optimize criteria.\n#'\n#' @export\n\nevaluate_fitness <- function(generation_t0, Y, X,\n                             family,\n                             parallel, minimize,\n                             objective_function,\n                             rank_objective_function) {\n\n    #number parent chromosomes\n    P <- dim(generation_t0)[1]\n\n    ######\n    #evaluate and rank each chromosome with selected objective function\n    ######\n\n    # serial ----------------\n    if (parallel == FALSE) {\n\n        # lm ----------------\n        if (family == \"gaussian\") {\n            obj_fun_output <- sapply(1:P, function(i) {\n                mod <- lm(Y ~ X[, generation_t0[i, ] == 1])\n                objective_function(mod)\n            })\n            # glm ----------------\n        } else if(family != \"gaussian\") {\n            obj_fun_output <- sapply(1:P, function(i) {\n                mod <- glm(Y ~ X[, generation_t0[i, ] == 1], family = family)\n                objective_function(mod)\n            })\n        }\n\n        # parallel ----------------\n    } else if (parallel == TRUE) {\n\n        # mclapply options ----------------\n        nCores <- detectCores() - 1\n        if(dim(X)[1] < 1000) {preschedule <- FALSE\n        } else {preschedule <- TRUE}\n\n        # lm ----------------\n        if (family == \"gaussian\") {\n            obj_fun_output <- unlist(parallel::mclapply(1:P, function(i) {\n                mod <- lm(Y ~ X[, generation_t0[i, ] == 1])\n                objective_function(mod)\n            }, mc.preschedule = preschedule, mc.cores = nCores))\n            # glm ----------------\n        } else if(family != \"gaussian\") {\n            obj_fun_output <- unlist(parallel::mclapply(1:P, function(i) {\n                mod <- glm(Y ~ X[, generation_t0[i, ] == 1], family = family)\n                objective_function(mod)\n            }, mc.preschedule = preschedule, mc.cores = nCores))\n        }\n    }\n\n    # rank ----------------\n    parent_rank <- rank_objective_function(obj_fun_output, minimize)\n\n    # return rankings ----------------\n    return(parent_rank)\n}\n",
+    "created" : 1513138519382.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2723980106",
+    "id" : "39F0B31",
+    "lastKnownWriteTime" : 1513181249,
+    "last_content_update" : 1513181249435,
+    "path" : "~/repos/STAT243/project/GA/R/evaluate_fitness.R",
+    "project_path" : "R/evaluate_fitness.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

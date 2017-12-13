@@ -1,0 +1,16 @@
+Package: GA
+Type: Package
+Title: Final project for FALL 2017 STAT 243 at UC Berkeley. Package will complete variable selection for generalized linear models using genetic algorithms.
+Version: 1.0
+Author: Weijie Xu, Yuwen Chen, Cameron Adams, Yilin  Zhou
+Maintainer: Cam Aims <cam.adams@berkeley.edu>
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+Imports: abind,
+    parallel
+RoxygenNote: 6.0.1
+Suggests: simrel,
+    scales
