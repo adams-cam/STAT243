@@ -3,9 +3,10 @@ context("evaluate_fitness")
 # test data
 Y <- as.matrix(mtcars$mpg)
 X <- as.matrix(mtcars[2:ncol(mtcars)])
+dim(X)
 
 # get input data
-C <- dim(x)[1] # number genes
+C <- dim(X)[2] # number genes
 P <- 2 * C # number of chromosomes
 
 # generate chromosomes to test
@@ -19,16 +20,37 @@ generation_t0 <- matrix(unlist(unique(firstGen)[1:P]),
                         ncol = C, byrow = TRUE)
 generation_t0 <- generation_t0[apply(generation_t0, 1,
                                      function(x) !all(x == 0)), ]
+dim(generation_t0)
 
-
-
+# serial evaluation
 test_that('serial fitness evaluation works',
-          expect_is(evaluate_fitness(generation_t0, Y, X,
+          {test <- evaluate_fitness(generation_t0, Y, X,
                                      family = "gaussian",
                                      parallel = FALSE, minimize = TRUE,
                                      objective_function = stats::AIC,
-                                     rank_objective_function), ))
+                                     rank_objective_function)
+          expect_is(test, "matrix")
+          expect_type(test, "double")
+                      })
 
-test_that('parallel fitness works',
-          expect_is(fitness_parallel(pop = pop,y = y,x = x,family = "gaussian",fitness_function = stats::AIC,ncores = 2), "numeric")
-)
+# parallel evaluation
+test_that('serial fitness evaluation works',
+          {test <- evaluate_fitness(generation_t0, Y, X,
+                                    family = "gaussian",
+                                    parallel = TRUE, minimize = TRUE,
+                                    objective_function = stats::AIC,
+                                    rank_objective_function)
+          expect_is(test, "matrix")
+          expect_type(test, "double")
+          })
+
+# test maximize evaluation
+test_that('serial fitness evaluation works',
+          {test <- evaluate_fitness(generation_t0, Y, X,
+                                    family = "gaussian",
+                                    parallel = TRUE, minimize = FALSE,
+                                    objective_function = stats::logLik,
+                                    rank_objective_function)
+          expect_is(test, "matrix")
+          expect_type(test, "double")
+          })
