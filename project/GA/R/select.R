@@ -21,8 +21,8 @@
 #' @param X a matrix or dataframe of predictor variables
 #' @param family a character string describing the error distribution and link function to be used in the model. Default is gaussian.
 #' @param objective_function function for computing objective. Default is \code{\link{stats::AIC}}. User can specify custom function.
-#' @param crossover_parents a function for crossover between mate pairs. User can specify custom function.
-#' @param crossover_method a character string describing crossover method. Default is multi-point crossover.
+#' @param crossover_parents a function for crossover between mate pairs. User can specify custom function. Default is \code{\link{crossover_parents}}.
+#' @param crossover_method a character string describing crossover method. Default is multi-point crossover. See \code{\link{crossover_parents}}.
 #' @param pCrossover a numeric value for he probability of crossover for each mate pair.
 #' @param start_chrom a numeric value for the  size of the popuation of chromosomes. Default is \code{choose(C, 2)} \eqn{\le 200}, where C is number of predictors.
 #' @param mutation_rate a numeric value for rate of mutation. Default is \eqn{1 / (P \sqrt C)}, where P is number of chromosomes, and C is number of predictors.
