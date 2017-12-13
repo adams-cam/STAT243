@@ -120,7 +120,10 @@ select <- function(Y, X, family = "gaussian",
     if (!is.matrix(X) & !is.data.frame(X)) stop("X must be matrix or dataframe")
 
     # Y
-    if (!is.vector(Y) & !is.matrix(Y) & ncol(Y) > 1) stop("Y must be vector or 1 dimensional matrix")
+    if (!is.vector(Y) & !is.matrix(Y)) stop("Y must be vector or 1 column matrix")
+    if (is.matrix(Y)) {
+        if(ncol(Y) > 1) stop("Y must be vector or 1 column matrix")
+    }
 
     # family
     if (family == "gaussian" & all(Y %% 1 == 0)) {cat("Warning: outcome distribution is are 1, 0 integer, family == 'gaussian' may not be suitable")}
@@ -227,14 +230,17 @@ select <- function(Y, X, family = "gaussian",
 
         # 3. check convergence ----------------
         if (i > 10 & isTRUE(converge)) {
-            if(isTRUE(all.equal(mean(convergeData[1:(P * 0.25), 2, i]),
-                                convergeData[1, 2, i],
-                                check.names = F,
-                                tolerance = tol)) &
-               isTRUE(all.equal(mean(convergeData[1:(P * 0.25), 2, (i - 1)]),
-                                convergeData[1, 2, i],
-                                check.names = F,
-                                tolerance = tol))) {
+            #if(isTRUE(all.equal(mean(convergeData[1:(P * 0.10), 2, i]),
+            #                    convergeData[1, 2, i],
+            #                    check.names = F,
+            #                    tolerance = tol)) &
+            #   isTRUE(all.equal(mean(convergeData[1:(P * 0.10), 2, (i - 1)]),
+            #                    convergeData[1, 2, i],
+            #                    check.names = F,
+            #                    tolerance = tol))) {
+
+            if((abs(convergeData[1, 2, i] - convergeData[1, 2, (i - 1)]) /
+                      abs( convergeData[1, 2, (i - 1)])) < tol) {
                 cat("\n#### Converged! ####")
                 break
             }
@@ -244,20 +250,22 @@ select <- function(Y, X, family = "gaussian",
     # Step 4. process output ----------------
     t1 <- c(t1, Sys.time())
     best_scores <- convergeData[, , i]
-    best_scores <- best_scores[best_scores[, 2] == best_scores[1, 2], ]
+    if (sum(best_scores[, 2] == best_scores[1, 2]) > 1) {
+        num_best_scores <- sum(best_scores[, 2] == best_scores[1, 2])
+    } else {num_best_scores <- 1}
     bestModel <- generation_t1[convergeData[, 1, i], ]
     value <- convergeData[1, 2, dim(convergeData)[3]]
     if(dim(convergeData)[3] < iter) {converged <- "Yes"
     } else {converged <- "No"}
 
-    output <- list("Best_model" =
-                       colnames(x)[round(colMeans(bestModel[1:dim(best_scores)[1], ]), 0) == 1],
-                   optimize = list("obj_func" = paste(substitute(objective_function))[3],
-                                 value = as.numeric(round(value, 4)),
-                                 minimize = minimize,
-                                 method = crossover_method),
-                   iter = dim(convergeData)[3],
-                   converged = converged,
+    output <- list("Best_model" = bestModel,
+                       #colnames(x)[round(colMeans(bestModel[1:dim(best_scores)[1], ]), 0) == 1],
+                    optimize = list("obj_func" = paste(substitute(objective_function))[3],
+                                value = as.numeric(round(value, 4)),
+                                minimize = minimize,
+                                method = crossover_method),
+                    iter = dim(convergeData)[3],
+                    converged = converged,
                    convergeData = convergeData,
                    timing = t1)
     class(output) <- "GA"

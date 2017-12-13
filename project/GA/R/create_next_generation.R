@@ -59,9 +59,9 @@ create_next_generation <- function(generation_t0, obj_fun_output,
         child2 <- mutate_child(mutation_rate, children[2, ], P, C)
 
         # Check if all zeros -----------------
-        if (all(!rowSums(generation_t1 == child1, na.rm = T) == C,
-                !rowSums(generation_t1 == child2, na.rm = T) == C) &
-            sum(child1) > 0 & sum(child2) > 0) {
+        if (!any(apply(gen, 1, function(x) all(x == child1))) &
+            !any(apply(gen, 1, function(x) all(x == child2))) &
+            !all(child1 == 0)  & !all(child2 == 0)) {
             generation_t1[c(i, i + 1), ] <- rbind(child1, child2)
             # update counter
             i <- i + 2

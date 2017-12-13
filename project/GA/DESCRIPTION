@@ -13,4 +13,5 @@ Imports: abind,
     parallel
 RoxygenNote: 6.0.1
 Suggests: simrel,
-    scales
+    scales,
+    testthat

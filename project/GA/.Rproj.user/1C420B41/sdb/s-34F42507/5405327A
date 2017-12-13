@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "################################################################\n#\n# create next generation function\n# Xu, Weijie; Chen, Yuwen; Adams, Cameron; Zhou, Yilin\n#\n# Final Projct\n# STAT 243\n# Fall 2017\n#\n################################################################\n\n#' Create next generation from parent chromosomes.\n#'\n#' Using fitness ranks of parent chromosomes, this function will select parents based upon their fitness rank, generate two children from each mate pair and mutate those child chromosomes. Function uses \\code{\\link{select_parents}}, \\code{\\link{crossover_parents}}, and \\code{\\link{mutate_child}} to generate children.\n#'\n#' @param generation_t0 a matrix of parent chromosomes to be evaluated. Columns correspond to predictors/genes and rows correspond to parents/chromosomes.\n#' @param obj_fun_output a numeric vector containg the objective function output for each parent chromosome.\n#' @param crossover_method a character string indicating which crossover method to use: c(\"method1\", \"method2\", \"method3\"). Default is \"method1\". See \\code{\\link{crossover_parents}}\n#' @param crossover_parents a function for crossover between two parents. See \\code{\\link{crossover_parents}}.\n#' @param pCrossover a number between 0 and 1 indicating the probability of crossover between two parents.\n#' @param mutate_child a function for mutagenesis of child genes. See \\code{\\link{mutate_child}}.\n#' @param mutation_rate a number between 0 and 1 indicating the probability of mutation. See \\code{\\link{mutate_child}}.\n#'\n#'\n#' @export\n\ncreate_next_generation <- function(generation_t0, obj_fun_output,\n                                   select_parents,\n                                   crossover_method,\n                                   crossover_parents,\n                                   pCrossover,\n                                   mutate_child,\n                                   mutation_rate) {\n\n    # set variables\n    P <- dim(generation_t0)[1]\n    C <- dim(generation_t0)[2]\n    parent_rank <- obj_fun_output[, 2]\n\n    #Create matrix for next generation\n    generation_t1 <- matrix(NA, dim(generation_t0)[1], dim(generation_t0)[2])\n\n    #########\n    #Selection, Crossover, and Mutation\n    #########\n\n    i <- 1 #initialize while loop\n    while(i <= dim(generation_t1)[1]) {\n\n        # Selection ----------------\n        parentInd <- select_parents(parent_rank, P)\n\n        # Crossover ----------------\n        children <- crossover_parents(generation_t0, parentInd,\n                                      crossover_method, pCrossover, parent_rank)\n\n        # Mutation ----------------\n        child1 <- mutate_child(mutation_rate, children[1, ], P, C)\n        child2 <- mutate_child(mutation_rate, children[2, ], P, C)\n\n        # Check if all zeros -----------------\n        if (!any(apply(gen, 1, function(x) all(x == child1))) &\n            !any(apply(gen, 1, function(x) all(x == child2))) &\n            !all(child1 == 0)  & !all(child2 == 0)) {\n            generation_t1[c(i, i + 1), ] <- rbind(child1, child2)\n            # update counter\n            i <- i + 2\n        }\n    }\n\n    # return new new generation\n    return(generation_t1)\n}\n",
+    "created" : 1513139270292.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2006791345",
+    "id" : "5405327A",
+    "lastKnownWriteTime" : 1513203013,
+    "last_content_update" : 1513203013205,
+    "path" : "~/repos/STAT243/project/GA/R/create_next_generation.R",
+    "project_path" : "R/create_next_generation.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
