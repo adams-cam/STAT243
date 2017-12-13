@@ -53,14 +53,14 @@ Functions find optimal variables by using evolutationry biology concepts of natu
 # test
 rm(list = ls())
 
-set.seed(243)
+set.seed(1111)
 
 # simulate data for gaussian GLM
 library(simrel)
 library(GA)
 
 n <- 100 # number obs
-p <- 25 # number predictors
+p <- 10 # number predictors
 m <- 2 # number relevant latent components
 q <- 5 # number relevant predictors
 gamma <- 0.2 # speed of decline in eigenvalues
@@ -70,6 +70,43 @@ dat <- simrel(n, p, m, q, relpos, gamma, R2) # generate data
 x <- dat$X
 y <- dat$Y
 
-\dontrun{test_GA <- GA::select(Y, X, iter, family = "gaussian", crossover_method = "method1", pCrossover = 0.8, converge = TRUE, minimize = TRUE, parallel = FALSE)}
+\dontrun{test_GA <- GA::select(y, x)}
+
+# 1. Generate founders:  200 chromosomes
+# 2. Evaluate founders
+# 3. Begin breeding
+# Generations: 1-2-3-4-5-6-7-8-9-10-11-12-13-14-15-16-17-18-19-20-21-22-23-24-25-26- #### Converged! ####
+
+# True data
+# dat$relpred
+[1]  1  4  5  7 10
+
+# true beta coefficients
+dat$beta
+        [,1]
+# [1,] -0.21787024
+# [2,]  0.00000000
+# [3,]  0.00000000
+# [4,] -0.68961539
+# [5,]  0.67167213
+# [6,]  0.00000000
+# [7,]  0.03082501
+# [8,]  0.00000000
+# [9,]  0.00000000
+# [10,]  0.20498849
+
+# GA output
+test_GA$BestModel
+# [1] "6"  "10" "11" "12" "19" "21" "25"
+
+test_GA$optimize
+#$optimize$obj_func
+# [1] "AIC"
+# $optimize$value
+# [1] 231.2034
+# $optimize$minimize
+# [1] TRUE
+# $optimize$method
+# [1] "method1"
 
 }

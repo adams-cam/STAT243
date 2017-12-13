@@ -31,7 +31,7 @@ plot.GA <- function(GA_output, col1 = "blue", col2 = "red") {
     # get plot data from GA object
     convergeData <- GA_output$convergeData
     obj_fun <- as.character(GA_output$optimize[1])
-    minimize <- GA_output$optimize[2]
+    minimize <- GA_output$optimize[3]
     method <- as.character(GA_output$optimize[4])
     iter <- GA_output$iter
 
@@ -77,7 +77,7 @@ plot.GA <- function(GA_output, col1 = "blue", col2 = "red") {
           col = col2, lty = 2, lwd = 2)
 
     # legend
-    if (isTRUE(minimize)) {location <- "topright"
+    if (minimize == TRUE) {location <- "topright"
     } else {location <- "bottomright"}
     legend(location, c("Chr fitness", "Best fitness", "Mean Fitness"),
             col = c(col1, col2, col2), pch = c(19, NA, NA), lwd = c(NA, 2, 2),

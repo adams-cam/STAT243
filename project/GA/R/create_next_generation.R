@@ -32,7 +32,7 @@ create_next_generation <- function(generation_t0, obj_fun_output,
                                    mutate_child,
                                    mutation_rate) {
 
-    # set variables and
+    # set variables
     P <- dim(generation_t0)[1]
     C <- dim(generation_t0)[2]
     parent_rank <- obj_fun_output[, 2]
@@ -59,7 +59,9 @@ create_next_generation <- function(generation_t0, obj_fun_output,
         child2 <- mutate_child(mutation_rate, children[2, ], P, C)
 
         # Check if all zeros -----------------
-        if (sum(child1) > 0 & sum(child2) > 0) {
+        if (all(!rowSums(generation_t1 == child1, na.rm = T) == C,
+                !rowSums(generation_t1 == child2, na.rm = T) == C) &
+            sum(child1) > 0 & sum(child2) > 0) {
             generation_t1[c(i, i + 1), ] <- rbind(child1, child2)
             # update counter
             i <- i + 2

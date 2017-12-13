@@ -7,14 +7,14 @@
     "folds" : "",
     "hash" : "3933302775",
     "id" : "E65C8FEF",
-    "lastKnownWriteTime" : 1513174673,
-    "last_content_update" : 1513174673784,
+    "lastKnownWriteTime" : 1513185008,
+    "last_content_update" : 1513185008537,
     "path" : "~/repos/STAT243/project/GA/R/selection_crossover_mutation.R",
     "project_path" : "R/selection_crossover_mutation.R",
     "properties" : {
         "tempName" : "Untitled1"
     },
-    "relative_order" : 7,
+    "relative_order" : 5,
     "source_on_save" : false,
     "source_window" : "",
     "type" : "r_source"
