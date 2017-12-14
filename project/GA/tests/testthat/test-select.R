@@ -1,4 +1,4 @@
-context('selet')
+context('select')
 
 y <- mtcars$mpg
 x <- as.matrix(mtcars[,c(-1)])
