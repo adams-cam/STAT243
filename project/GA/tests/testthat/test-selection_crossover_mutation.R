@@ -70,7 +70,6 @@ test_that("crossover_parents works and crossover method 3 works",
             })
 
 # mutate_child ----------------
-
 mutation_rate <- NULL
 child <- rbinom(C, 1, runif(1, min = 0.35, max = 0.65))
 
