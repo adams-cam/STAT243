@@ -3,43 +3,40 @@ context('Variable selection using genetic algorithms')
 y <- mtcars$mpg
 x <- as.matrix(mtcars[,c(-1)])
 
-library(MASS)
-fit <- lm(mpg~., data = mtcars)
-step <- stepAIC(fit, direction="both")
-step
 
-# test for method1
-test_that('Variable selection using genetic algorithms',{
-  test1 <- select(y, x, family = "gaussian", objective_function = stats::AIC,
-                  crossover_parents_function = crossover_parents,
-                  crossover_method = 'method1', pCrossover = 0.8,
-                  start_chrom = NULL, mutation_rate = NULL, converge = TRUE,
-                  tol = 1e-04, iter = 100, minimize = TRUE, parallel = FALSE)
+test_that('Test the invalid inputs',{
+  expect_error(select(y, x, family = "gaussian", nCores = 1.5))
+  # invalid input for 'nCores', which should be integer
   
-  expect_equal(test1$optimize$value, AIC(lm(mpg~wt+qsec+am, data = mtcars)),
-               tolerance = 1e0)
+  expect_error(select(y, x, family = "gaussian", pCrossover = 1.2))
+  # invalid input for 'pCrossover', which should be integer
+  
+  expect_error(select(y, x, family = "gaussian", pCrossover = 0.2))
+  # invalid input for 'pCrossover', which should be integer
+  
+  expect_error(select(y, x, family = "gaussian", start_chrom = 10.5))
+  # invalid input for 'start_chrom', which should be integer
+  
+  expect_error(select(y, x, family = "gaussian", mutation_rate = 2))
+  # invalid input for 'mutation_rate', which should be integer
+  
+  expect_error(select(y, x, family = "gaussian", mutation_rate = 0.5))
+  # invalid input for 'mutation_rate', which should be integer
+  
+  expect_error(select(y, x, family = "gaussian", iter = 25.5))
+  # invalid input for 'iter', which should be integer
+  
+  expect_error(select(x, family = "gaussian"))
+  # missing input for 'y', which should be a vector
 })
 
-# test for method2
-test_that('Variable selection using genetic algorithms',{
-  test2 <- select(y, x, family = "gaussian", objective_function = stats::AIC,
-                  crossover_parents_function = crossover_parents,
-                  crossover_method = 'method2', pCrossover = 0.8,
-                  start_chrom = NULL, mutation_rate = NULL, converge = TRUE,
-                  tol = 1e-04, iter = 100, minimize = TRUE, parallel = FALSE)
+test_that('Test different family',{
+  y1 <- sample(c(0,1),32,replace = TRUE)
+  # create a new response variable for binomial and poisson family
   
-  expect_equal(test2$optimize$value, AIC(lm(mpg~ wt+qsec+am, data = mtcars)), 
-               tolerance = 1e0)
-})
-
-# test for method3
-test_that('Variable selection using genetic algorithms',{
-  test3 <- select(y, x, family = "gaussian", objective_function = stats::AIC,
-                  crossover_parents_function = crossover_parents,
-                  crossover_method = 'method3', pCrossover = 0.8,
-                  start_chrom = NULL, mutation_rate = NULL, converge = TRUE,
-                  tol = 1e-04, iter = 100, minimize = TRUE, parallel = FALSE)
+  expect_output(select(y1, x, family = "binomial"))
+  # test the whether the binomial family works for the function
   
-  expect_equal(test3$optimize$value, AIC(lm(mpg~wt+qsec+am, data = mtcars)),
-               tolerance = 1e0)
+  expect_output(select(y1, x, family = "poisson"))
+  # test the whether the poisson family works for the function
 })
