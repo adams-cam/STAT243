@@ -48,7 +48,7 @@ create_next_generation <- function(generation_t0, obj_fun_output,
     while(i <= dim(generation_t1)[1]) {
 
         # Selection ----------------
-        parentInd <- select_parents(parent_rank, P)
+        parentInd <- select_parents(parent_rank)
 
         # Crossover ----------------
         children <- crossover_parents(generation_t0, parentInd,
@@ -59,8 +59,8 @@ create_next_generation <- function(generation_t0, obj_fun_output,
         child2 <- mutate_child(mutation_rate, children[2, ], P, C)
 
         # Check if all zeros -----------------
-        if (!any(apply(gen, 1, function(x) all(x == child1))) &
-            !any(apply(gen, 1, function(x) all(x == child2))) &
+        if (#!any(apply(generation_t1, 1, function(x) all(x == child1))) &
+            #!any(apply(generation_t1, 1, function(x) all(x == child2))) &
             !all(child1 == 0)  & !all(child2 == 0)) {
             generation_t1[c(i, i + 1), ] <- rbind(child1, child2)
             # update counter

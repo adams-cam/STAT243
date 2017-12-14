@@ -21,7 +21,10 @@
 #' @export
 
 
-select_parents <- function(parent_rank, P) {
+select_parents <- function(parent_rank) {
+
+    # get number of chromosomes
+    P <- length(parent_rank)
 
     # probability of selection
     phi <- (2 * parent_rank) / (P * (P + 1))
@@ -70,14 +73,14 @@ crossover_parents <- function(generation_t0, parentInd,
             #multipoint crossover: three crossover points
             cross <- sort(sample(seq(2,(C - 2), 2), 3, replace = F))
 
-            child1 <- c(parent1[1:cross[1]],
-                        parent2[(cross[1] + 1):cross[2]],
-                        parent1[(cross[2] + 1):cross[3]],
-                        parent2[(cross[3] + 1):C])
-            child2 <- c(parent2[1:cross[1]],
-                        parent1[(cross[1] + 1):cross[2]],
-                        parent2[(cross[2] + 1):cross[3]],
-                        parent2[(cross[3] + 1):C])
+            child1 <- as.integer(c(parent1[1:cross[1]],
+                            parent2[(cross[1] + 1):cross[2]],
+                            parent1[(cross[2] + 1):cross[3]],
+                            parent2[(cross[3] + 1):C]))
+            child2 <- as.integer(c(parent2[1:cross[1]],
+                            parent1[(cross[1] + 1):cross[2]],
+                            parent2[(cross[2] + 1):cross[3]],
+                            parent2[(cross[3] + 1):C]))
 
         } else if (crossover_method == "method2") {
 
@@ -104,7 +107,7 @@ crossover_parents <- function(generation_t0, parentInd,
                 rbinom(sum(parent1 - parent2 != 0), 1,
                        prob = parent2r / (parent1r + parent2r))
         }
-        return(rbind(child1, child2))
+        return(rbind(as.integer(child1), as.integer(child2)))
     } else {
         child1 <- parent1
         child2 <- parent2
@@ -127,13 +130,13 @@ crossover_parents <- function(generation_t0, parentInd,
 mutate_child <- function(mutation_rate, child, P, C) {
 
     if (is.null(mutation_rate)) {
-        return(abs(round(child, 0) -
+        return(as.integer(abs(round(child, 0) -
                        rbinom(C, 1,
-                              prob = 1 / (P * sqrt(C)))))
+                              prob = 1 / (P * sqrt(C))))))
     } else {
-        return(abs(round(child, 0) -
+        return(as.integer(abs(round(child, 0) -
                        rbinom(C, 1,
-                              prob = mutation_rate)))
+                              prob = mutation_rate))))
     }
 }
 

@@ -20,7 +20,6 @@ generation_t0 <- matrix(unlist(unique(firstGen)[1:P]),
                         ncol = C, byrow = TRUE)
 generation_t0 <- generation_t0[apply(generation_t0, 1,
                                      function(x) !all(x == 0)), ]
-dim(generation_t0)
 
 # serial evaluation
 test_that('serial fitness evaluation works',
