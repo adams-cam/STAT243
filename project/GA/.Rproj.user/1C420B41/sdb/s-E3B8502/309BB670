@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "context('select')\n\n# test data\ny <- mtcars$mpg\nx <- as.matrix(mtcars[, c(-1)])\n\n# test GA::select\ntest_that('GA algorithm works ',\n            {test <- GA::select(y, x, family = \"gaussian\",\n                                objective_function = stats::AIC)\n              expect_type(test, \"list\") #list\n              expect_s3_class(test, \"GA\") # of class GA\n              expect_type(GA::select(y, x,\n                    family = \"gaussian\", objective_function = stats::AIC)$Best_model,\n                        \"character\")\n})\n\ntest_that('GA algorithm does not converge',\n            {expect_equal(GA::select(y, x, family = \"gaussian\", iter = 100,\n                                mutation_rate = 0.8)$converged, \"No\")\n            expect_equal(GA::select(y, x, family = \"gaussian\", iter = 100,\n                                        mutation_rate = 0.8)$iter, 100)\n})\n\ntest_that('test for input errors',\n            {expect_error(GA::select(y, \"foo\", family = \"gaussian\"))\n            expect_error(GA::select(x, family = \"gaussian\"))\n            expect_error(GA::select(y[-1], x))\n            expect_error(GA::select(y, x, family = \"binomial\"))\n            expect_error(GA::select(y, x, nCores = 1000L))\n            expect_error(GA::select(cbind(y, y, y), x))\n            expect_error(GA::select(y, x, objective_function = \"AIC\"))\n            expect_error(GA::select(y, x, minimize = \"True\"))\n            expect_error(GA::select(y, x, family = \"gessian\"))\n            expect_error(GA::select(y, x, converge = \"Yes please do\"))\n})\n\n",
+    "created" : 1513236024546.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1987701",
+    "id" : "309BB670",
+    "lastKnownWriteTime" : 1513236520,
+    "last_content_update" : 1513236520592,
+    "path" : "~/repos/STAT243/project/GA/tests/testthat/test-select.R",
+    "project_path" : "tests/testthat/test-select.R",
+    "properties" : {
+    },
+    "relative_order" : 12,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
