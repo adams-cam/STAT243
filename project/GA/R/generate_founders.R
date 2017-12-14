@@ -11,7 +11,7 @@
 
 #' Generate founders function
 #'
-#' Generates founders given a covariate data matrix or dataframe and returns a matrix of founder chromosomes. Number of founders is determined by \code{\link{choose(C, 2)}} where C is number of predictors. Maximum number of founding chromosomes is 200. User can specify number of starting chromosomes and this number can be larger than 200. Founding chromosmes are generated randomly and unique values are kept.
+#' Generates founders given a covariate data matrix or dataframe and returns a matrix of founder chromosomes. Number of founders is determined by \code{\link{choose}(C, 2)} where C is number of predictors. Maximum number of founding chromosomes is 200. User can specify number of starting chromosomes and this number can be larger than 200. Founding chromosmes are generated randomly and unique values are kept.
 #'
 #' @param X a matrix or dataframe of predictor variables
 #' @param start_chrom a numeric value indicating user specified number of founding chromosomes. Default is null.

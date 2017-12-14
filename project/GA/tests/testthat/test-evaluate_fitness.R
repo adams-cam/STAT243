@@ -30,26 +30,28 @@ test_that('serial fitness evaluation works',
                                      rank_objective_function)
           expect_is(test, "matrix")
           expect_type(test, "double")
-                      })
+})
 
 # parallel evaluation
-test_that('serial fitness evaluation works',
+test_that('parallel fitness evaluation works',
           {test <- evaluate_fitness(generation_t0, Y, X,
                                     family = "gaussian",
                                     parallel = TRUE, minimize = TRUE,
                                     objective_function = stats::AIC,
                                     rank_objective_function)
           expect_is(test, "matrix")
-          expect_type(test, "double")
-          })
+          #expect_type(test, "double")
+})
 
-# test maximize evaluation
-test_that('serial fitness evaluation works',
+# test maximize evaluation and other objective functions
+test_that('Other objective_functions work',
           {test <- evaluate_fitness(generation_t0, Y, X,
                                     family = "gaussian",
-                                    parallel = TRUE, minimize = FALSE,
+                                    parallel = FALSE, minimize = FALSE,
                                     objective_function = stats::logLik,
                                     rank_objective_function)
           expect_is(test, "matrix")
           expect_type(test, "double")
-          })
+})
+
+

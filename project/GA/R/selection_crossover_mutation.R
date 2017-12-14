@@ -14,7 +14,6 @@
 #' Selection of first parent is done according to fitness ranks generated with \code{\link{rank_objective_function}}. Probably of parent rank, \eqn{\frac{2\ r_{i}}{P(P+1)}}, from \eqn{i = 1,...,P}, where rank_i are fitness ranks of each parent chromosomes, and P is number of of parent chromosomes. The second parent is selected randomly and will not be the same as the previous parent. Fucntion returns ranks of select parents to be used for \code{\link{crossover_parents}}.
 #'
 #' @param parent_rank a vector indicating the rank of parents chromosomes. Ranking order is inverse: parent chromosomes with lowest fitness rank will have rank == 1.
-#' @param P an integer indicating the number of parent chromosomes.
 #'
 #' References:
 #' Geof H. Givens, Jennifer A. Hoeting (2013) Combinatorial Optimization (italicize). Chapter 3 of Computational Statistics (italicize).
@@ -30,8 +29,8 @@ select_parents <- function(parent_rank) {
     phi <- (2 * parent_rank) / (P * (P + 1))
 
     # select first parent by parent_rank, second random
-    parent1 <- sample(1:P, 1, prob=phi, replace = T)
-    parent2 <- sample((1:P)[-parent1], 1, replace = T)
+    parent1 <- base::sample(1:P, 1, prob = phi, replace = T)
+    parent2 <- base::sample((1:P)[-parent1], 1, replace = T)
 
     return(c(parent1, parent2))
 }
@@ -66,7 +65,7 @@ crossover_parents <- function(generation_t0, parentInd,
     parent1r <- parent_rank[parentInd[1]]
     parent2r <- parent_rank[parentInd[2]]
 
-    if (rbinom(1, 1, pCrossover) == 1 ) {
+    if (stats::rbinom(1, 1, pCrossover) == 1 ) {
         if (crossover_method == "method1") {
 
             #METHOD 1 ----------------
@@ -90,8 +89,8 @@ crossover_parents <- function(generation_t0, parentInd,
                 (parent1r + parent2r) +
                 parent2 * parent2r /
                 (parent1r + parent2r)
-            child1 <- rbinom(C, 1, prob = childProb)
-            child2 <- rbinom(C, 1, prob = childProb)
+            child1 <- stats::rbinom(C, 1, prob = childProb)
+            child2 <- stats::rbinom(C, 1, prob = childProb)
 
         } else if (crossover_method == "method3") {
 
@@ -101,10 +100,10 @@ crossover_parents <- function(generation_t0, parentInd,
             child1 <- parent1
             child2 <- parent2
             child1[parent1 != parent2] <-
-                rbinom(sum(parent1 - parent2 != 0), 1,
+                stats::rbinom(sum(parent1 - parent2 != 0), 1,
                        prob = parent1r / (parent1r + parent2r))
             child2[parent1 != parent2] <-
-                rbinom(sum(parent1 - parent2 != 0), 1,
+                stats::rbinom(sum(parent1 - parent2 != 0), 1,
                        prob = parent2r / (parent1r + parent2r))
         }
         return(rbind(as.integer(child1), as.integer(child2)))
@@ -131,12 +130,12 @@ mutate_child <- function(mutation_rate, child, P, C) {
 
     if (is.null(mutation_rate)) {
         return(as.integer(abs(round(child, 0) -
-                       rbinom(C, 1,
-                              prob = 1 / (P * sqrt(C))))))
+                        stats::rbinom(C, 1,
+                                    prob = 1 / (P * sqrt(C))))))
     } else {
         return(as.integer(abs(round(child, 0) -
-                       rbinom(C, 1,
-                              prob = mutation_rate))))
+                        stats::rbinom(C, 1,
+                                    prob = mutation_rate))))
     }
 }
 

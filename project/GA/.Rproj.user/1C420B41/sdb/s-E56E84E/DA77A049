@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "context(\"evaluate_fitness\")\n\n# test data\nY <- as.matrix(mtcars$mpg)\nX <- as.matrix(mtcars[2:ncol(mtcars)])\ndim(X)\n\n# get input data\nC <- dim(X)[2] # number genes\nP <- 2 * C # number of chromosomes\n\n# generate chromosomes to test\ngeneSample <- sample(c(0, 1),\n                     replace = TRUE,\n                     size = ceiling(1.2 * C * P))\n\nx <- seq_along(geneSample)\nfirstGen <- split(geneSample, ceiling(x / C))\ngeneration_t0 <- matrix(unlist(unique(firstGen)[1:P]),\n                        ncol = C, byrow = TRUE)\ngeneration_t0 <- generation_t0[apply(generation_t0, 1,\n                                     function(x) !all(x == 0)), ]\n\n# serial evaluation\ntest_that('serial fitness evaluation works',\n          {test <- evaluate_fitness(generation_t0, Y, X,\n                                     family = \"gaussian\",\n                                     parallel = FALSE, minimize = TRUE,\n                                     objective_function = stats::AIC,\n                                     rank_objective_function)\n          expect_is(test, \"matrix\")\n          expect_type(test, \"double\")\n})\n\n# parallel evaluation\ntest_that('parallel fitness evaluation works',\n          {test <- evaluate_fitness(generation_t0, Y, X,\n                                    family = \"gaussian\",\n                                    parallel = TRUE, minimize = TRUE,\n                                    objective_function = stats::AIC,\n                                    rank_objective_function)\n          expect_is(test, \"matrix\")\n          #expect_type(test, \"double\")\n})\n\n# test maximize evaluation and other objective functions\ntest_that('Other objective_functions work',\n          {test <- evaluate_fitness(generation_t0, Y, X,\n                                    family = \"gaussian\",\n                                    parallel = FALSE, minimize = FALSE,\n                                    objective_function = stats::logLik,\n                                    rank_objective_function)\n          expect_is(test, \"matrix\")\n          expect_type(test, \"double\")\n})\n\n\n",
+    "created" : 1513206790980.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2640988481",
+    "id" : "DA77A049",
+    "lastKnownWriteTime" : 1513221446,
+    "last_content_update" : 1513221446906,
+    "path" : "~/repos/STAT243/project/GA/tests/testthat/test-evaluate_fitness.R",
+    "project_path" : "tests/testthat/test-evaluate_fitness.R",
+    "properties" : {
+        "tempName" : "Untitled2"
+    },
+    "relative_order" : 7,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

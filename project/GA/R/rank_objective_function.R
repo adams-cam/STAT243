@@ -23,9 +23,9 @@ rank_objective_function <- function(obj_fun_output, minimize) {
     P <- length(obj_fun_output)
 
     if (isTRUE(minimize)) {
-        r <- base::rank(-obj_fun_output, na.last = TRUE, ties.method = "first")
+        r <- base::rank(-obj_fun_output, na.last = TRUE, ties.method = "average")
     } else {
-        r <- base::rank(obj_fun_output, na.last = TRUE, ties.method = "first")
+        r <- base::rank(obj_fun_output, na.last = TRUE, ties.method = "average")
     }
 
     return(cbind(chr = 1:P, parent_rank = r, obj_fun_output))

@@ -19,9 +19,12 @@
 #' @param Y vector of response variable
 #' @param X a matrix or dataframe of predictor variables
 #' @param family a character string describing the error distribution and link function to be used in the model. Default is gaussian.
-#' @param calc_objective_function a function for optimizies \code{optimize}. Default is \code{\link{stats::AIC}}. User can specify custom function.
+#' @param parallel a logical value indicating whether chromosmes should be evaluated using parallel processes. See \code{\link{evaluate_fitness}} and details below.
+#' @param minimize a logical value indicating whether optimize should be minimized (TRUE) or maximized (FALSE).
+#' @param objective_function function for computing objective. Default is \code{\link{AIC}}. User can specify custom function.
 #' @param rank_objective_function a function that ranks parents by their fitness as determined by optimize criteria.
 #'
+#'\code{Parallel} uses \code{\link{mclapply}} to parallel processes across n - 1 available cores. Available cores are found with \code{\link{detectCores}}. Parallel processing is set to preschedule by default; dynamic parallelization is not available at this time.
 #' @export
 
 evaluate_fitness <- function(generation_t0, Y, X,
@@ -43,13 +46,13 @@ evaluate_fitness <- function(generation_t0, Y, X,
         # lm ----------------
         if (family == "gaussian") {
             obj_fun_output <- sapply(1:P, function(i) {
-                mod <- lm(Y ~ X[, generation_t0[i, ] == 1])
+                mod <- stats::lm(Y ~ X[, generation_t0[i, ] == 1])
                 objective_function(mod)
             })
             # glm ----------------
         } else if(family != "gaussian") {
             obj_fun_output <- sapply(1:P, function(i) {
-                mod <- glm(Y ~ X[, generation_t0[i, ] == 1], family = family)
+                mod <- stats::glm(Y ~ X[, generation_t0[i, ] == 1], family = family)
                 objective_function(mod)
             })
         }
@@ -58,20 +61,21 @@ evaluate_fitness <- function(generation_t0, Y, X,
     } else if (parallel == TRUE) {
 
         # mclapply options ----------------
-        nCores <- detectCores() - 1
-        if(dim(X)[1] < 1000) {preschedule <- FALSE
-        } else {preschedule <- TRUE}
+        nCores <- parallel::detectCores() - 1
+        #if(dim(X)[1] < 1000) {preschedule <- FALSE
+        #} else {
+        preschedule <- TRUE#}
 
         # lm ----------------
         if (family == "gaussian") {
             obj_fun_output <- unlist(parallel::mclapply(1:P, function(i) {
-                mod <- lm(Y ~ X[, generation_t0[i, ] == 1])
+                mod <- stats::lm(Y ~ X[, generation_t0[i, ] == 1])
                 objective_function(mod)
             }, mc.preschedule = preschedule, mc.cores = nCores))
             # glm ----------------
         } else if(family != "gaussian") {
             obj_fun_output <- unlist(parallel::mclapply(1:P, function(i) {
-                mod <- glm(Y ~ X[, generation_t0[i, ] == 1], family = family)
+                mod <- stats::glm(Y ~ X[, generation_t0[i, ] == 1], family = family)
                 objective_function(mod)
             }, mc.preschedule = preschedule, mc.cores = nCores))
         }

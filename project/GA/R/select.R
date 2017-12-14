@@ -20,8 +20,8 @@
 #' @param Y vector of response variable
 #' @param X a matrix or dataframe of predictor variables
 #' @param family a character string describing the error distribution and link function to be used in the model. Default is gaussian.
-#' @param objective_function function for computing objective. Default is \code{\link{stats::AIC}}. User can specify custom function.
-#' @param crossover_parents a function for crossover between mate pairs. User can specify custom function. Default is \code{\link{crossover_parents}}.
+#' @param objective_function function for computing objective. Default is \code{\link{AIC}}. User can specify custom function.
+#' @param crossover_parents_function a function for crossover between mate pairs. User can specify custom function. Default is \code{\link{crossover_parents}}.
 #' @param crossover_method a character string describing crossover method. Default is multi-point crossover. See \code{\link{crossover_parents}}.
 #' @param pCrossover a numeric value for he probability of crossover for each mate pair.
 #' @param start_chrom a numeric value for the  size of the popuation of chromosomes. Default is \code{choose(C, 2)} \eqn{\le 200}, where C is number of predictors.
@@ -35,7 +35,7 @@
 #'If user wants to use custom objective_function, they must use a function that is compatible with \code{\link{lm}} or \code{\link{glm}} fitted objects which output a numberic value of length 1.
 #'
 #' @examples
-#' # test
+#' # Simulated data
 #' rm(list = ls())
 #'
 #' set.seed(1111)
@@ -50,49 +50,23 @@
 #' q <- 5 # number relevant predictors
 #' gamma <- 0.2 # speed of decline in eigenvalues
 #' R2 <- 0.5 # theoretical R-squared according to the true linear model
-#' relpos <- sample(1:p, m, replace = F) # positions of m
-#' dat <- simrel(n, p, m, q, relpos, gamma, R2) # generate data
+#' relpos <- base::sample(1:p, m, replace = FALSE) # positions of m
+#' dat <- simrel::simrel(n, p, m, q, relpos, gamma, R2) # generate data
 #' x <- dat$X
 #' y <- dat$Y
 #'
-#' \dontrun{test_GA <- GA::select(y, x)}
+#' \dontrun{sim_GA <- GA:select(y, x, family = "gaussian", objective_function = stats::AIC,
+#' crossover_method = "method1", pCrossover = 0.8, converge = TRUE, minimize = TRUE, parallel = F)}
 #'
-#' # 1. Generate founders:  200 chromosomes
-#' # 2. Evaluate founders
-#' # 3. Begin breeding
-#' # Generations: 1-2-3-4-5-6-7-8-9-10-11-12-13-14-15-16-17-18-19-20-21-22-23-24-25-26- #### Converged! ####
+#' # mtcars
+#' data(mtcars)
 #'
-#' # True data
-#' # dat$relpred
-#' [1]  1  4  5  7 10
+#' y <- mtcars$mpg
+#' x <- mtcars[, 2:11]
 #'
-#' # true beta coefficients
-#' dat$beta
-#'         [,1]
-#' # [1,] -0.21787024
-#' # [2,]  0.00000000
-#' # [3,]  0.00000000
-#' # [4,] -0.68961539
-#' # [5,]  0.67167213
-#' # [6,]  0.00000000
-#' # [7,]  0.03082501
-#' # [8,]  0.00000000
-#' # [9,]  0.00000000
-#' # [10,]  0.20498849
+#' \dontrun{GA_mtcars <- GA:select(y, x, family = "gaussian", objective_function = stats::AIC,
+#' crossover_method = "method1", pCrossover = 0.8, converge = TRUE, minimize = TRUE, parallel = F)}
 #'
-#' # GA output
-#' test_GA$BestModel
-#' # [1] "6"  "10" "11" "12" "19" "21" "25"
-#'
-#' test_GA$optimize
-#' #$optimize$obj_func
-#' # [1] "AIC"
-#' # $optimize$value
-#' # [1] 231.2034
-#' # $optimize$minimize
-#' # [1] TRUE
-#' # $optimize$method
-#' # [1] "method1"
 #'
 #' @export
 
@@ -110,7 +84,6 @@ select <- function(Y, X, family = "gaussian",
                   parallel = FALSE) {
 
 
-    require(parallel)
 
     ########
     #error checking
@@ -230,17 +203,17 @@ select <- function(Y, X, family = "gaussian",
 
         # 3. check convergence ----------------
         if (i > 10 & isTRUE(converge)) {
-            #if(isTRUE(all.equal(mean(convergeData[1:(P * 0.10), 2, i]),
-            #                    convergeData[1, 2, i],
-            #                    check.names = F,
-            #                    tolerance = tol)) &
-            #   isTRUE(all.equal(mean(convergeData[1:(P * 0.10), 2, (i - 1)]),
-            #                    convergeData[1, 2, i],
-            #                    check.names = F,
-            #                    tolerance = tol))) {
+            if(isTRUE(all.equal(mean(convergeData[1:(P * 0.25), 2, i]),
+                                convergeData[1, 2, i],
+                                check.names = F,
+                                tolerance = tol)) &
+               isTRUE(all.equal(mean(convergeData[1:(P * 0.25), 2, (i - 1)]),
+                                convergeData[1, 2, i],
+                                check.names = F,
+                                tolerance = tol))) {
 
-            if((abs(convergeData[1, 2, i] - convergeData[1, 2, (i - 1)]) /
-                      abs( convergeData[1, 2, (i - 1)])) < tol) {
+            #if((abs(convergeData[1, 2, i] - convergeData[1, 2, (i - 1)]) /
+            #          abs( convergeData[1, 2, (i - 1)])) < tol) {
                 cat("\n#### Converged! ####")
                 break
             }
@@ -249,17 +222,22 @@ select <- function(Y, X, family = "gaussian",
 
     # Step 4. process output ----------------
     t1 <- c(t1, Sys.time())
+
+    # get models with the best fitness
     best_scores <- convergeData[, , i]
     if (sum(best_scores[, 2] == best_scores[1, 2]) > 1) {
         num_best_scores <- sum(best_scores[, 2] == best_scores[1, 2])
     } else {num_best_scores <- 1}
     bestModel <- generation_t1[convergeData[, 1, i], ]
+
+    # other output information
     value <- convergeData[1, 2, dim(convergeData)[3]]
     if(dim(convergeData)[3] < iter) {converged <- "Yes"
     } else {converged <- "No"}
 
-    output <- list("Best_model" = bestModel,
-                       #colnames(x)[round(colMeans(bestModel[1:dim(best_scores)[1], ]), 0) == 1],
+    # create output list
+    output <- list("Best_model" =
+                       colnames(x)[round(colMeans(bestModel[1:dim(best_scores)[1], ]), 0) == 1],
                     optimize = list("obj_func" = paste(substitute(objective_function))[3],
                                 value = as.numeric(round(value, 4)),
                                 minimize = minimize,
@@ -268,7 +246,10 @@ select <- function(Y, X, family = "gaussian",
                     converged = converged,
                    convergeData = convergeData,
                    timing = t1)
+
+    # set class
     class(output) <- "GA"
+
     return(output)
 }
 

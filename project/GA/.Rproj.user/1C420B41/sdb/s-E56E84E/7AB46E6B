@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "#simulate data\n\n# simulate data for gaussian GLM\nlibrary(simrel)\nlibrary(GA)\n\nnSim <- 100\noutput <- rel_pred <- beta <- list()\n\n#for (i in 1:nSim) {\n    \nn <- 100 # number obs\np <- 20 # number predictors\nm <- 1 # number relevant latent components\nq <- 10 # number relevant predictors\ngamma <- 0.2 # speed of decline in eigenvalues\nR2 <- 0.75 # theoretical R-squared according to the true linear model\nrelpos <- sample(1:p, m, replace = F) # positions of m\ndat <- simrel(n, p, m, q, relpos, gamma, R2) # generate data\nx <- dat$X\ny <- dat$Y\n\nrel_pred <- dat$relpred\nbeta <- dat$beta\noutput[[i]] <- GA::select(y, x, crossover_method = \"method1\", converge = T)\n\n#}\n\nstop()\n\noutput <- GA::select(y, x, objective_function = stats::AIC, minimize = TRUE, crossover_method = \"method2\", converge = T)\n\nplot(output)\noutput$Best_model\ndat$relpred\n\noutput$convergeData[, , 100]\n#binomial\n#pr = 1/(1+exp(-y)) \n#y_binomial = rbinom(n, 1, pr)\nmatch <- sapply(1:nrow(output$Best_model), function(i) colnames(x)[output$Best_model[i, ] == 1])\n\nsapply(1:length(match), function(i) all(dat$relpred %in% match[[i]]) )\n\n\npaste(dat$relpred)\ncolnames(x)[colMeans(output$Best_model[1:20, ]) > 0.50]\ndat$relpred %in% colnames(x)[colMeans(output$Best_model[1:20, ]) > 0.75]\nc(dat$beta)\n\n\n\ngen <- t(sapply(1:200, function(x) rbinom(200, 1, runif(1, min = 0, max = 1))))\n\nhead(gen)\n\n\n\n\nchild1 <- rbinom(10, 1, runif(1, min = 0, max = 1))\nchild2 <- rbinom(10, 1, runif(1, min = 0, max = 1))\nchild1 <- gen[2, ]\n\nall(gen[2, ] == child1)\n!any(apply(gen, 1, function(x) all(x == child1))) \napply(gen, 1, function(x) all(x == child1))\n\ngen == child1\n",
+    "created" : 1513194612226.000,
+    "dirty" : true,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "1058161370",
+    "id" : "7AB46E6B",
+    "lastKnownWriteTime" : 6,
+    "last_content_update" : 1513222436653,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
