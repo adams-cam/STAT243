@@ -30,7 +30,7 @@
 #' @param tol a numeric value indicating convergence tolerance. Default is 1e-4.
 #' @param iter an integer specifying maximum number of generations algorithm will produce. Default is 100
 #' @param minimize a logical value indicating whether optimize should be minimized (TRUE) or maximized (FALSE).
-#' @param parallel a logical value indicating whether chromosmes should be evaluated using parallel processes. See \code{\link{evaluate_fitness}}.
+#' @param nCores an integer indicating number of parallel processes to run when evaluating fitness. Default is 1, or no paralleization. See \code{\link{evaluate_fitness}}.
 #'
 #'If user wants to use custom objective_function, they must use a function that is compatible with \code{\link{lm}} or \code{\link{glm}} fitted objects which output a numberic value of length 1.
 #'
@@ -56,7 +56,7 @@
 #' y <- dat$Y
 #'
 #' \dontrun{sim_GA <- GA:select(y, x, family = "gaussian", objective_function = stats::AIC,
-#' crossover_method = "method1", pCrossover = 0.8, converge = TRUE, minimize = TRUE, parallel = F)}
+#' crossover_method = "method1", pCrossover = 0.8, converge = TRUE, minimize = TRUE, nCores = 1)}
 #'
 #' # mtcars
 #' data(mtcars)
@@ -65,7 +65,7 @@
 #' x <- mtcars[, 2:11]
 #'
 #' \dontrun{GA_mtcars <- GA:select(y, x, family = "gaussian", objective_function = stats::AIC,
-#' crossover_method = "method1", pCrossover = 0.8, converge = TRUE, minimize = TRUE, parallel = F)}
+#' crossover_method = "method1", pCrossover = 0.8, converge = TRUE, minimize = TRUE, nCores = 1)}
 #'
 #'
 #' @export
@@ -81,7 +81,7 @@ select <- function(Y, X, family = "gaussian",
                   tol = 1e-4,
                   iter = 100,
                   minimize = TRUE,
-                  parallel = FALSE) {
+                  nCores = 1) {
 
 
 
@@ -135,8 +135,10 @@ select <- function(Y, X, family = "gaussian",
     # minimize
     if (!is.logical(minimize)) stop("Error: minimize must be logical (TRUE/FALSE). Default is TRUE")
 
-    # parallel
-    if (!is.logical(parallel)) stop("Error: parallel must be logical (TRUE/FALSE). Default is TRUE")
+    # nCores
+    if (!is.integer(nCores)) stop("Error: nCores must be integer of length 1")
+    if (nCores > parallel::detectCores()) stop("Error: nCores cannot be larger than detectCores()")
+    if (nCores < 1) stop("Error: nCores must be >= 1")
 
 
     ##########
@@ -154,7 +156,7 @@ select <- function(Y, X, family = "gaussian",
     cat("\n2. Evaluate founders")
     obj_fun_output_t0 <- evaluate_fitness(generation_t0, Y, X,
                                         family,
-                                        parallel, minimize,
+                                        nCores, minimize,
                                         objective_function,
                                         rank_objective_function)
 
@@ -189,7 +191,7 @@ select <- function(Y, X, family = "gaussian",
         # 2. evaluate children fitness ----------------
         obj_fun_output_t1 <- evaluate_fitness(generation_t1, Y, X,
                                             family,
-                                            parallel, minimize,
+                                            nCores, minimize,
                                             objective_function,
                                             rank_objective_function)
 
@@ -237,7 +239,7 @@ select <- function(Y, X, family = "gaussian",
 
     # create output list
     output <- list("Best_model" =
-                       colnames(x)[round(colMeans(bestModel[1:dim(best_scores)[1], ]), 0) == 1],
+                       colnames(X)[round(colMeans(bestModel[1:dim(best_scores)[1], ]), 0) == 1],
                     optimize = list("obj_func" = paste(substitute(objective_function))[3],
                                 value = as.numeric(round(value, 4)),
                                 minimize = minimize,

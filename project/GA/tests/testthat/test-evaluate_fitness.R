@@ -25,7 +25,7 @@ generation_t0 <- generation_t0[apply(generation_t0, 1,
 test_that('serial fitness evaluation works',
           {test <- evaluate_fitness(generation_t0, Y, X,
                                      family = "gaussian",
-                                     parallel = FALSE, minimize = TRUE,
+                                     nCores = 1, minimize = TRUE,
                                      objective_function = stats::AIC,
                                      rank_objective_function)
           expect_is(test, "matrix")
@@ -36,7 +36,7 @@ test_that('serial fitness evaluation works',
 test_that('parallel fitness evaluation works',
           {test <- evaluate_fitness(generation_t0, Y, X,
                                     family = "gaussian",
-                                    parallel = TRUE, minimize = TRUE,
+                                    nCores = 2, minimize = TRUE,
                                     objective_function = stats::AIC,
                                     rank_objective_function)
           expect_is(test, "matrix")
@@ -47,7 +47,7 @@ test_that('parallel fitness evaluation works',
 test_that('Other objective_functions work',
           {test <- evaluate_fitness(generation_t0, Y, X,
                                     family = "gaussian",
-                                    parallel = FALSE, minimize = FALSE,
+                                    nCores = 1, minimize = FALSE,
                                     objective_function = stats::logLik,
                                     rank_objective_function)
           expect_is(test, "matrix")

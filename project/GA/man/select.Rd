@@ -8,7 +8,7 @@ select(Y, X, family = "gaussian", objective_function = stats::AIC,
   crossover_parents_function = crossover_parents,
   crossover_method = c("method1", "method2", "method3"), pCrossover = 0.8,
   start_chrom = NULL, mutation_rate = NULL, converge = TRUE,
-  tol = 1e-04, iter = 100, minimize = TRUE, parallel = FALSE)
+  tol = 1e-04, iter = 100, minimize = TRUE, nCores = 1)
 }
 \arguments{
 \item{Y}{vector of response variable}
@@ -37,7 +37,7 @@ select(Y, X, family = "gaussian", objective_function = stats::AIC,
 
 \item{minimize}{a logical value indicating whether optimize should be minimized (TRUE) or maximized (FALSE).}
 
-\item{parallel}{a logical value indicating whether chromosmes should be evaluated using parallel processes. See \code{\link{evaluate_fitness}}.
+\item{nCores}{an integer indicating number of parallel processes to run when evaluating fitness. Default is 1, or no paralleization. See \code{\link{evaluate_fitness}}.
 
 If user wants to use custom objective_function, they must use a function that is compatible with \code{\link{lm}} or \code{\link{glm}} fitted objects which output a numberic value of length 1.}
 }
@@ -71,7 +71,7 @@ x <- dat$X
 y <- dat$Y
 
 \dontrun{sim_GA <- GA:select(y, x, family = "gaussian", objective_function = stats::AIC,
-crossover_method = "method1", pCrossover = 0.8, converge = TRUE, minimize = TRUE, parallel = F)}
+crossover_method = "method1", pCrossover = 0.8, converge = TRUE, minimize = TRUE, nCores = 1)}
 
 # mtcars
 data(mtcars)
@@ -80,7 +80,7 @@ y <- mtcars$mpg
 x <- mtcars[, 2:11]
 
 \dontrun{GA_mtcars <- GA:select(y, x, family = "gaussian", objective_function = stats::AIC,
-crossover_method = "method1", pCrossover = 0.8, converge = TRUE, minimize = TRUE, parallel = F)}
+crossover_method = "method1", pCrossover = 0.8, converge = TRUE, minimize = TRUE, nCores = 1)}
 
 
 }
