@@ -12,6 +12,8 @@ create_next_generation(generation_t0, obj_fun_output, select_parents,
 
 \item{obj_fun_output}{a numeric vector containg the objective function output for each parent chromosome.}
 
+\item{select_parents}{function for selection of parents for \code{\link{crossover_parents}}. See \code{\link{select_parents}}.}
+
 \item{crossover_method}{a character string indicating which crossover method to use: c("method1", "method2", "method3"). Default is "method1". See \code{\link{crossover_parents}}}
 
 \item{crossover_parents}{a function for crossover between two parents. See \code{\link{crossover_parents}}.}

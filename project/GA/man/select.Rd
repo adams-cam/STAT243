@@ -8,7 +8,7 @@ select(Y, X, family = "gaussian", objective_function = stats::AIC,
   crossover_parents_function = crossover_parents,
   crossover_method = c("method1", "method2", "method3"), pCrossover = 0.8,
   start_chrom = NULL, mutation_rate = NULL, converge = TRUE,
-  tol = 1e-04, iter = 100, minimize = TRUE, parallel = FALSE)
+  tol = 1e-04, iter = 100, minimize = TRUE, nCores = 1)
 }
 \arguments{
 \item{Y}{vector of response variable}
@@ -17,9 +17,11 @@ select(Y, X, family = "gaussian", objective_function = stats::AIC,
 
 \item{family}{a character string describing the error distribution and link function to be used in the model. Default is gaussian.}
 
-\item{objective_function}{function for computing objective. Default is \code{\link{stats::AIC}}. User can specify custom function.}
+\item{objective_function}{function for computing objective. Default is \code{\link{AIC}}. User can specify custom function.}
 
-\item{crossover_method}{a character string describing crossover method. Default is multi-point crossover.}
+\item{crossover_parents_function}{a function for crossover between mate pairs. User can specify custom function. Default is \code{\link{crossover_parents}}.}
+
+\item{crossover_method}{a character string describing crossover method. Default is multi-point crossover. See \code{\link{crossover_parents}}.}
 
 \item{pCrossover}{a numeric value for he probability of crossover for each mate pair.}
 
@@ -35,11 +37,9 @@ select(Y, X, family = "gaussian", objective_function = stats::AIC,
 
 \item{minimize}{a logical value indicating whether optimize should be minimized (TRUE) or maximized (FALSE).}
 
-\item{parallel}{a logical value indicating whether chromosmes should be evaluated using parallel processes. See \code{\link{evaluate_fitness}}.
+\item{nCores}{an integer indicating number of parallel processes to run when evaluating fitness. Default is 1, or no paralleization. See \code{\link{evaluate_fitness}}.
 
 If user wants to use custom objective_function, they must use a function that is compatible with \code{\link{lm}} or \code{\link{glm}} fitted objects which output a numberic value of length 1.}
-
-\item{crossover_parents}{a function for crossover between mate pairs. User can specify custom function.}
 }
 \description{
 select implements genetic algorithms for variable selection for GLMs by optimizing package or user specified objective functions such as AIC, BIC, and logloglikelihood.
@@ -50,7 +50,7 @@ Functions find optimal variables by using evolutationry biology concepts of natu
 1. Geof H. Givens, Jennifer A. Hoeting (2013) Combinatorial Optimization (italicize). Chapter 3 of Computational Statistics (italicize).
 }
 \examples{
-# test
+# Simulated data
 rm(list = ls())
 
 set.seed(1111)
@@ -65,48 +65,22 @@ m <- 2 # number relevant latent components
 q <- 5 # number relevant predictors
 gamma <- 0.2 # speed of decline in eigenvalues
 R2 <- 0.5 # theoretical R-squared according to the true linear model
-relpos <- sample(1:p, m, replace = F) # positions of m
-dat <- simrel(n, p, m, q, relpos, gamma, R2) # generate data
+relpos <- base::sample(1:p, m, replace = FALSE) # positions of m
+dat <- simrel::simrel(n, p, m, q, relpos, gamma, R2) # generate data
 x <- dat$X
 y <- dat$Y
 
-\dontrun{test_GA <- GA::select(y, x)}
+\dontrun{sim_GA <- GA:select(y, x, family = "gaussian", objective_function = stats::AIC,
+crossover_method = "method1", pCrossover = 0.8, converge = TRUE, minimize = TRUE, nCores = 1)}
 
-# 1. Generate founders:  200 chromosomes
-# 2. Evaluate founders
-# 3. Begin breeding
-# Generations: 1-2-3-4-5-6-7-8-9-10-11-12-13-14-15-16-17-18-19-20-21-22-23-24-25-26- #### Converged! ####
+# mtcars
+data(mtcars)
 
-# True data
-# dat$relpred
-[1]  1  4  5  7 10
+y <- mtcars$mpg
+x <- mtcars[, 2:11]
 
-# true beta coefficients
-dat$beta
-        [,1]
-# [1,] -0.21787024
-# [2,]  0.00000000
-# [3,]  0.00000000
-# [4,] -0.68961539
-# [5,]  0.67167213
-# [6,]  0.00000000
-# [7,]  0.03082501
-# [8,]  0.00000000
-# [9,]  0.00000000
-# [10,]  0.20498849
+\dontrun{GA_mtcars <- GA:select(y, x, family = "gaussian", objective_function = stats::AIC,
+crossover_method = "method1", pCrossover = 0.8, converge = TRUE, minimize = TRUE, nCores = 1)}
 
-# GA output
-test_GA$BestModel
-# [1] "6"  "10" "11" "12" "19" "21" "25"
-
-test_GA$optimize
-#$optimize$obj_func
-# [1] "AIC"
-# $optimize$value
-# [1] 231.2034
-# $optimize$minimize
-# [1] TRUE
-# $optimize$method
-# [1] "method1"
 
 }

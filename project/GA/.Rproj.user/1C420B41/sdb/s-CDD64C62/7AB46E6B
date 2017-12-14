@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "#simulate data\n\n# simulate data for gaussian GLM\nlibrary(simrel)\nlibrary(GA)\n\nnSim <- 10\noutput <- rel_pred <- beta <- list()\n\nfor (i in 1:nSim) {\n    \n    n <- 100 # number obs\n    p <- 20 # number predictors\n    m <- 1 # number relevant latent components\n    q <- 10 # number relevant predictors\n    gamma <- 0.2 # speed of decline in eigenvalues\n    R2 <- 0.75 # theoretical R-squared according to the true linear model\n    relpos <- sample(1:p, m, replace = F) # positions of m\n    dat <- simrel(n, p, m, q, relpos, gamma, R2) # generate data\n    x <- dat$X\n    y <- dat$Y\n    \n    rel_pred <- dat$relpred\n    beta <- dat$beta\n    output <- GA::select(y, x, crossover_method = \"method1\", converge = T)\n    \n    output$Best_model\n    \n}\nfor (i in 1:p) {\n    \n    output$Best_model[i] %in% \n        \n}\n\n#grid size: p x i grids\nyGrid <- p #40\nxGrid <- i #40\n#grid sequence\nxCell <- seq(10/xGrid,10,by=10/xGrid) \nyCell <- seq(10/yGrid,10,by=10/yGrid)\n#coordinates\ny1 <- matrix(c(rep(yCell,xGrid)),ncol=1)\nx1 <- matrix(sapply(xCell,function(x) (c(rep(x,yGrid)))),ncol=1)\n\n\ngrid <- expand.grid(x1,y1)\n\nlibrary(RColorBrewer)\nset <- brewer.pal(9, \"PiYG\")\nplot(0:10, 0:10, col = \"white\")\nlength(x1)\ncol = sample(c(set[1], set[9]), 200, replace = T)\n\nrect(xleft= x1[1:10] - 1, ybottom = y1[1:10] - 0.5, xright = x1[1:10], ytop = y1[1:10], col = col, border = set[8])\n\n\noutput$Best_model %in% 1:p & output$Best_model %in% dat$relpred\ngrid$x3 p1[,1]-10/xGrid\np1$y2 <- p1[,2]-10/yGrid\n\nsegments(0, 0, 1, 1)\n\nplot(rep(1,p), 1:p, pch = 20, col = set1[2])\n\nplot(1:20, 1:20, col = \"white\", asp = 1)\n\n?segments\nsegments()\nstop()\n\noutput <- GA::select(y, x, objective_function = stats::AIC, minimize = TRUE, crossover_method = \"method1\", converge = T)\n\nplot(output)\noutput$Best_model\ndat$relpred\n\noutput$convergeData[, , 100]\n#binomial\n#pr = 1/(1+exp(-y)) \n#y_binomial = rbinom(n, 1, pr)\nmatch <- sapply(1:nrow(output$Best_model), function(i) colnames(x)[output$Best_model[i, ] == 1])\n\nsapply(1:length(match), function(i) all(dat$relpred %in% match[[i]]) )\n\n\npaste(dat$relpred)\ncolnames(x)[colMeans(output$Best_model[1:20, ]) > 0.50]\ndat$relpred %in% colnames(x)[colMeans(output$Best_model[1:20, ]) > 0.75]\nc(dat$beta)\n\n\n\ngen <- t(sapply(1:200, function(x) rbinom(200, 1, runif(1, min = 0, max = 1))))\n\nhead(gen)\n\n\n\n\nchild1 <- rbinom(10, 1, runif(1, min = 0, max = 1))\nchild2 <- rbinom(10, 1, runif(1, min = 0, max = 1))\nchild1 <- gen[2, ]\n\nall(gen[2, ] == child1)\n!any(apply(gen, 1, function(x) all(x == child1))) \napply(gen, 1, function(x) all(x == child1))\n\ngen == child1\n",
+    "created" : 1513194612226.000,
+    "dirty" : true,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "2657838271",
+    "id" : "7AB46E6B",
+    "lastKnownWriteTime" : 6,
+    "last_content_update" : 1513228879882,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

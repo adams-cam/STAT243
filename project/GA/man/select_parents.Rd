@@ -4,12 +4,10 @@
 \alias{select_parents}
 \title{Selection of Parents for Crossover}
 \usage{
-select_parents(parent_rank, P)
+select_parents(parent_rank)
 }
 \arguments{
-\item{parent_rank}{a vector indicating the rank of parents chromosomes. Ranking order is inverse: parent chromosomes with lowest fitness rank will have rank == 1.}
-
-\item{P}{an integer indicating the number of parent chromosomes.
+\item{parent_rank}{a vector indicating the rank of parents chromosomes. Ranking order is inverse: parent chromosomes with lowest fitness rank will have rank == 1.
 
 References:
 Geof H. Givens, Jennifer A. Hoeting (2013) Combinatorial Optimization (italicize). Chapter 3 of Computational Statistics (italicize).}

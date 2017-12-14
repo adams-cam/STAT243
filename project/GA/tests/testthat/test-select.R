@@ -16,7 +16,8 @@ test_that('Variable selection using genetic algorithms',{
                   start_chrom = NULL, mutation_rate = NULL, converge = TRUE,
                   tol = 1e-04, iter = 100, minimize = TRUE, parallel = FALSE)
   
-  expect_equal(test1$optimize$value, AIC(lm(mpg~wt+qsec+am, data = mtcars)))
+  expect_equal(test1$optimize$value, AIC(lm(mpg~wt+qsec+am, data = mtcars)),
+               tolerance = 1e0)
 })
 
 # test for method2
@@ -27,7 +28,8 @@ test_that('Variable selection using genetic algorithms',{
                   start_chrom = NULL, mutation_rate = NULL, converge = TRUE,
                   tol = 1e-04, iter = 100, minimize = TRUE, parallel = FALSE)
   
-  expect_equal(test2$optimize$value, AIC(lm(mpg~ wt+qsec+am, data = mtcars)))
+  expect_equal(test2$optimize$value, AIC(lm(mpg~ wt+qsec+am, data = mtcars)), 
+               tolerance = 1e0)
 })
 
 # test for method3
@@ -38,5 +40,6 @@ test_that('Variable selection using genetic algorithms',{
                   start_chrom = NULL, mutation_rate = NULL, converge = TRUE,
                   tol = 1e-04, iter = 100, minimize = TRUE, parallel = FALSE)
   
-  expect_equal(test3$optimize$value, AIC(lm(mpg~wt+qsec+am, data = mtcars)))
+  expect_equal(test3$optimize$value, AIC(lm(mpg~wt+qsec+am, data = mtcars)),
+               tolerance = 1e0)
 })

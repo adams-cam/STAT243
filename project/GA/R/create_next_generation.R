@@ -15,6 +15,7 @@
 #'
 #' @param generation_t0 a matrix of parent chromosomes to be evaluated. Columns correspond to predictors/genes and rows correspond to parents/chromosomes.
 #' @param obj_fun_output a numeric vector containg the objective function output for each parent chromosome.
+#' @param select_parents function for selection of parents for \code{\link{crossover_parents}}. See \code{\link{select_parents}}.
 #' @param crossover_method a character string indicating which crossover method to use: c("method1", "method2", "method3"). Default is "method1". See \code{\link{crossover_parents}}
 #' @param crossover_parents a function for crossover between two parents. See \code{\link{crossover_parents}}.
 #' @param pCrossover a number between 0 and 1 indicating the probability of crossover between two parents.

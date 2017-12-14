@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "################################################################\n#\n# generate founders function\n# Xu, Weijie; Chen, Yuwen; Adams, Cameron; Zhou, Yilin\n#\n# Final Projct\n# STAT 243\n# Fall 2017\n#\n################################################################\n\n#' Generate founders function\n#'\n#' Generates founders given a covariate data matrix or dataframe and returns a matrix of founder chromosomes. Number of founders is determined by \\code{\\link{choose}(C, 2)} where C is number of predictors. Maximum number of founding chromosomes is 200. User can specify number of starting chromosomes and this number can be larger than 200. Founding chromosmes are generated randomly and unique values are kept.\n#'\n#' @param X a matrix or dataframe of predictor variables\n#' @param start_chrom a numeric value indicating user specified number of founding chromosomes. Default is null.\n#'\n#' @export\n\n\ngenerate_founders <- function(X, start_chrom) {\n\n    # number of predictors ---------------\n    C <- dim(X)[2]\n\n    # number of founders ----------------\n    if (is.null(start_chrom)) {\n        P <- 2 * C\n        if (P > 200) {         #check for max/min chrom\n            P <- 200\n        } else if (P < 20) {\n            P <- 20\n        }\n    } else {\n        if (start_chrom > 200) cat(\"Warning: P > 200, algorithm may require lots of running time\")\n        P <- start_chrom #user number of chroms\n    }\n\n    # randomly generate founders ----------------\n    geneSample <- sample(c(0, 1),\n                         replace = TRUE,\n                         size = ceiling(1.2 * C * P))\n\n    # create a first generation ----------------\n    x <- seq_along(geneSample)\n    firstGen <- split(geneSample, ceiling(x / C))\n    generation_t0 <- matrix(unlist(unique(firstGen)[1:P]),\n                            ncol = C, byrow = TRUE)\n    generation_t0 <- generation_t0[apply(generation_t0, 1,\n                                         function(x) !all(x == 0)), ]\n\n    return(generation_t0)\n}\n",
+    "created" : 1513138076126.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "4068983447",
+    "id" : "798D9173",
+    "lastKnownWriteTime" : 1513227214,
+    "last_content_update" : 1513227214392,
+    "path" : "~/repos/STAT243/project/GA/R/generate_founders.R",
+    "project_path" : "R/generate_founders.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 10,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
