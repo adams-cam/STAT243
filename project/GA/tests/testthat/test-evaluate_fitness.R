@@ -1,9 +1,8 @@
 context("evaluate_fitness")
 
-# test data
+# test data ----------------
 Y <- as.matrix(mtcars$mpg)
 X <- as.matrix(mtcars[2:ncol(mtcars)])
-dim(X)
 
 # get input data
 C <- dim(X)[2] # number genes

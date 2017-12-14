@@ -26,14 +26,11 @@ generate_founders <- function(X, start_chrom) {
 
     # number of founders ----------------
     if (is.null(start_chrom)) {
-        P <- ceiling(choose(C, 2) / 2)
+        P <- 2 * C
         if (P > 200) {         #check for max/min chrom
             P <- 200
         } else if (P < 20) {
             P <- 20
-        }
-        if (P %% 2 != 0) {     #check for even number of parents
-            P <- P - 1
         }
     } else {
         if (start_chrom > 200) cat("Warning: P > 200, algorithm may require lots of running time")

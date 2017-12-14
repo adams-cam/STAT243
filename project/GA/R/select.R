@@ -81,7 +81,7 @@ select <- function(Y, X, family = "gaussian",
                   tol = 1e-4,
                   iter = 100,
                   minimize = TRUE,
-                  nCores = 1) {
+                  nCores = 1L) {
 
 
 
@@ -250,7 +250,7 @@ select <- function(Y, X, family = "gaussian",
                    timing = t1)
 
     # set class
-    class(output) <- "GA"
+    class(output) <- c("GA", class(output))
 
     return(output)
 }
