@@ -45,9 +45,9 @@ plot.GA <- function(GA_output, col1 = "blue", col2 = "red") {
              pch = 19, col = scales::alpha(col1, 0.1),
              ylim = c(min(convergeData[ , 2, ], na.rm = T),
                       max(convergeData[ , 2, ], na.rm = T)),
-             xlim = c(1, output$iter), xlab = "Generations", ylab = obj_fun,
+             xlim = c(1, GA_output$iter), xlab = "Generations", ylab = obj_fun,
              main = paste("GA performance: \n ", obj_fun, method))
-        for (i in 2:output$iter) {
+        for (i in 2:GA_output$iter) {
             points(jitter(rep(i, nrow(convergeData))),
                    convergeData[, 2, i], type = "p",
                    pch = 19, col = scales::alpha(col1, 0.25))
@@ -59,9 +59,9 @@ plot.GA <- function(GA_output, col1 = "blue", col2 = "red") {
              pch = 19, col = col1,
              ylim = c(min(convergeData[ , 2, ], na.rm = T),
                       max(convergeData[ , 2, ], na.rm = T)),
-             xlim = c(1, output$iter), xlab = "Generations", ylab = obj_fun,
+             xlim = c(1, GA_output$iter), xlab = "Generations", ylab = obj_fun,
              main = paste("GA performance: \n ", obj_fun, method))
-        for (i in 2:output$iter) {
+        for (i in 2:GA_output$iter) {
             points(jitter(rep(i, nrow(convergeData))),
                    convergeData[, 2, i], type = "p",
                    pch = 19, col = alpha("blue", 0.25))
@@ -69,10 +69,10 @@ plot.GA <- function(GA_output, col1 = "blue", col2 = "red") {
     }
 
     # line plots of mean and max fitness per generation
-    lines(1:output$iter, sapply(1:output$iter,
+    lines(1:GA_output$iter, sapply(1:GA_output$iter,
                                 function(x) convergeData[1, 2, x]), type = "l",
             col = col2, lwd = 2)
-    lines(1:output$iter, sapply(1:output$iter,
+    lines(1:GA_output$iter, sapply(1:GA_output$iter,
                                 function(x) mean(convergeData[, 2, x])),
           col = col2, lty = 2, lwd = 2)
 
