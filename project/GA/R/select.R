@@ -90,17 +90,21 @@ select <- function(Y, X, family = "gaussian",
     ########
 
     # X
+    if (missing(X)) stop("Error: must input a matrix of predictor data")
     if (!is.matrix(X) & !is.data.frame(X)) stop("X must be matrix or dataframe")
 
     # Y
+    if (missing(Y)) stop("Error: must input a vector of reponse data")
     if (!is.vector(Y) & !is.matrix(Y)) stop("Y must be vector or 1 column matrix")
-    if (is.matrix(Y)) {
+    if (is.matrix(Y) | is.data.frame(Y)) {
         if(ncol(Y) > 1) stop("Y must be vector or 1 column matrix")
     }
+    if (length(Y) != dim(X)[1]) stop("Error: X and Y dimensions don't match")
 
     # family
     if (family == "gaussian" & all(Y %% 1 == 0)) {cat("Warning: outcome distribution is are 1, 0 integer, family == 'gaussian' may not be suitable")}
     if (family == "gamma" & sum(Y > 0) > 0) {cat("Warning: outcome values < 0, family == 'gamma' may produce errors")}
+    if (!family %in% c("gaussian", "binomial", "gamma", "poisson")) stop("Error: family argument misspecified")
 
     # objective_function
     if (!is.function(objective_function)) stop("Error: objective_function must be a function")
@@ -111,6 +115,7 @@ select <- function(Y, X, family = "gaussian",
     # crossover_method
     if (!is.character(crossover_method)) stop("Error: crossover_method should be a character string")
     if (length(crossover_method) > 1) crossover_method <- crossover_method[1]
+    if (!crossover_method %in% c("method1", "method2", "method3")) stop("Error: incorrect crossover method misspecified")
 
     # pCrossover
     if (!is.numeric(pCrossover) | pCrossover < .Machine$double.eps | pCrossover > 1) stop("Error: pCrossover must be number between 0 and 1")
@@ -244,7 +249,7 @@ select <- function(Y, X, family = "gaussian",
                                 value = as.numeric(round(value, 4)),
                                 minimize = minimize,
                                 method = crossover_method),
-                    iter = dim(convergeData)[3],
+                    iter = dim(convergeData)[3] - 1,
                     converged = converged,
                    convergeData = convergeData,
                    timing = t1)

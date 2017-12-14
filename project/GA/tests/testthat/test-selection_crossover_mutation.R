@@ -24,6 +24,7 @@ generation_t0 <- generation_t0[apply(generation_t0, 1,
 parentInd <- sample(1:P, 2, replace = F)
 parent_rank <- 1:P
 
+child <-
 # select_parents ----------------
 test_that("select_parents works ",
           {test <- select_parents(parent_rank)
@@ -74,7 +75,7 @@ mutation_rate <- NULL
 child <- stats::rbinom(C, 1, runif(1, min = 0.35, max = 0.65))
 
 test_that("mutate_child works when mutation_rate is null",
-          {test <- mutate_child(mutation_rate = NULL, child, P, C)
+          {test <- mutate_child(mutation_rate, child, P, C)
             expect_type(test, "integer")
             expect_true(any(test == 1 | test == 0)) # O's and 1's
             expect_true(!all(test == 0)) # not all 0's
@@ -98,19 +99,8 @@ test_that("mutate_child works when user specifies a mutation rate",
           })
 
 test_that("mutate_child breaks when user specifies an incorrect mutation rate",
-          {test <- mutate_child(mutation_rate = 1.2, child, P, C)
-          #expect_failure(test, "integer")
-          #expect_true(any(test == 1 | test == 0)) # O's and 1's
-          #expect_true(!all(test == 0)) # not all 0's
-          #expect_equal(length(test), C) # C chromosomes
-          })
-
-test_that("mutate_child breaks when user specifies an incorrect mutation rate",
-          {test <- mutate_child(mutation_rate = -0.2, child, P, C)
-          #expect_type(test, "integer")
-          #expect_true(any(test == 1 | test == 0)) # O's and 1's
-          #expect_true(!all(test == 0)) # not all 0's
-          #expect_equal(length(test), C) # C chromosomes
+            {expect_error(mutate_child(mutation_rate = 1.2, child, P, C))
+            expect_error(mutate_child(mutation_rate = -0.2, child, P, C))
           })
 
 

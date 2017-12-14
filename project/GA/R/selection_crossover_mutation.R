@@ -133,6 +133,11 @@ mutate_child <- function(mutation_rate, child, P, C) {
                         stats::rbinom(C, 1,
                                     prob = 1 / (P * sqrt(C))))))
     } else {
+
+        if (mutation_rate > 1 | mutation_rate < 0) {
+            stop("Error: mutation_rate must be between 0 and 1")
+        }
+
         return(as.integer(abs(round(child, 0) -
                         stats::rbinom(C, 1,
                                     prob = mutation_rate))))
