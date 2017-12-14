@@ -1,42 +1,38 @@
-context('Variable selection using genetic algorithms')
+context('selet')
 
 y <- mtcars$mpg
 x <- as.matrix(mtcars[,c(-1)])
 
-library(MASS)
-fit <- lm(mpg~., data = mtcars)
-step <- stepAIC(fit, direction="both")
-step
 
 # test for method1
-test_that('Variable selection using genetic algorithms',{
-  test1 <- select(y, x, family = "gaussian", objective_function = stats::AIC,
-                  crossover_parents_function = crossover_parents,
-                  crossover_method = 'method1', pCrossover = 0.8,
-                  start_chrom = NULL, mutation_rate = NULL, converge = TRUE,
-                  tol = 1e-04, iter = 100, minimize = TRUE, parallel = FALSE)
-  
-  expect_equal(test1$optimize$value, AIC(lm(mpg~wt+qsec+am, data = mtcars)))
+test_that('GA algorithm works ',
+            {test <- GA::select(y, x, family = "gaussian",
+                                objective_function = stats::AIC)
+              expect_type(test, "list") #list
+              expect_s3_class(test, "GA") # of class GA
+              expect_length(test, 6)
+              expect_type(GA::select(y, x,
+                    family = "gaussian",objective_function = stats::AIC)$Best_model,
+                        "character")
 })
 
-# test for method2
-test_that('Variable selection using genetic algorithms',{
-  test2 <- select(y, x, family = "gaussian", objective_function = stats::AIC,
-                  crossover_parents_function = crossover_parents,
-                  crossover_method = 'method2', pCrossover = 0.8,
-                  start_chrom = NULL, mutation_rate = NULL, converge = TRUE,
-                  tol = 1e-04, iter = 100, minimize = TRUE, parallel = FALSE)
-  
-  expect_equal(test2$optimize$value, AIC(lm(mpg~ wt+qsec+am, data = mtcars)))
+test_that('GA algorithm does not converge',
+            {expect_equal(GA::select(y, x, family = "gaussian", iter = 100,
+                                mutation_rate = 0.8)$converged, "No")
+            expect_equal(GA::select(y, x, family = "gaussian", iter = 100,
+                                        mutation_rate = 0.8)$iter, 100)
 })
 
-# test for method3
-test_that('Variable selection using genetic algorithms',{
-  test3 <- select(y, x, family = "gaussian", objective_function = stats::AIC,
-                  crossover_parents_function = crossover_parents,
-                  crossover_method = 'method3', pCrossover = 0.8,
-                  start_chrom = NULL, mutation_rate = NULL, converge = TRUE,
-                  tol = 1e-04, iter = 100, minimize = TRUE, parallel = FALSE)
-  
-  expect_equal(test3$optimize$value, AIC(lm(mpg~wt+qsec+am, data = mtcars)))
+test_that('test for input errors',
+            {expect_error(GA::select(y, "foo", family = "gaussian"))
+            expect_error(GA::select(x, family = "gaussian"))
+            expect_error(GA::select(y[-1], x))
+            expect_error(GA::select(y, x, family = "binomial"))
+            expect_error(GA::select(y, x, nCores = 1000L))
+            expect_error(GA::select(cbind(y, y, y), x))
+            expect_error(GA::select(y, x, objective_function = "AIC"))
+            expect_error(GA::select(y, x, minimize = "True"))
+            expect_error(GA::select(y, x, family = "gessian"))
+            expect_error(GA::select(y, x, converge = "Yes please do"))
 })
+

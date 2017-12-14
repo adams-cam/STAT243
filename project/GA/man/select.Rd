@@ -8,7 +8,7 @@ select(Y, X, family = "gaussian", objective_function = stats::AIC,
   crossover_parents_function = crossover_parents,
   crossover_method = c("method1", "method2", "method3"), pCrossover = 0.8,
   start_chrom = NULL, mutation_rate = NULL, converge = TRUE,
-  tol = 1e-04, iter = 100, minimize = TRUE, nCores = 1)
+  tol = 1e-04, iter = 100, minimize = TRUE, nCores = 1L)
 }
 \arguments{
 \item{Y}{vector of response variable}

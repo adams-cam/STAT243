@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "context(\"generate_founders\")\n\ny <- mtcars$mpg\nx <- as.matrix(mtcars[,c(-1)])\n\nC <- dim(x)[2]\nP <- 2 * C\n\n# test the dimension, class, and type of the output\ntest_that('generate_founders works',\n          {test <- generate_founders(x, NULL)\n            expect_equal(dim(test)[2], C)\n            expect_equal(dim(test)[1], P)\n            expect_true(is.matrix(test))\n            expect_true(is.numeric(test))\n            expect_false(any(rowSums(test == 0) == C))})\n\ntest_that('generate_founders works with user defined chrom_start',\n          {test <- generate_founders(x, 25)\n          expect_equal(dim(test)[2], C)\n          expect_equal(dim(test)[1], 25)\n          expect_true(is.matrix(test))\n          expect_true(is.numeric(test))\n          expect_false(any(rowSums(test == 0) == C))})\n",
+    "created" : 1513235460115.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1129599004",
+    "id" : "F212EFD",
+    "lastKnownWriteTime" : 1513235785,
+    "last_content_update" : 1513235785745,
+    "path" : "~/repos/STAT243/project/GA/tests/testthat/test-generate_founders.R",
+    "project_path" : "tests/testthat/test-generate_founders.R",
+    "properties" : {
+    },
+    "relative_order" : 12,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

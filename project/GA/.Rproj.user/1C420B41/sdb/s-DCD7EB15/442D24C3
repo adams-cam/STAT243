@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "context(\"create_next_generation\")\n\n# test data\nY <- as.matrix(mtcars$mpg)\nX <- as.matrix(mtcars[2:ncol(mtcars)])\ndim(X)\n\n# get input data\nC <- dim(X)[2] # number genes\nP <- 2* C # number of chromosomes\n\n# generate chromosomes to test\ngeneSample <- sample(c(0, 1),\n                     replace = TRUE,\n                     size = ceiling(1.2 * C * P))\n\nx <- seq_along(geneSample)\nfirstGen <- split(geneSample, ceiling(x / C))\ngeneration_t0 <- matrix(unlist(unique(firstGen)[1:P]),\n                        ncol = C, byrow = TRUE)\ngeneration_t0 <- generation_t0[apply(generation_t0, 1,\n                                     function(x) !all(x == 0)), ]\n\nobj_fun_output <- evaluate_fitness(generation_t0, Y, X,\n                                   family = \"gaussian\",\n                                   nCores = 1, minimize = TRUE,\n                                   objective_function = stats::AIC,\n                                   rank_objective_function)\n\n\n\n# evaluation\ntest_that('test that create_next_generation works with pCrossover = 1',\n          {test <- create_next_generation(generation_t0, obj_fun_output,\n                                                      select_parents,\n                                                      crossover_method = \"method1\",\n                                                      crossover_parents,\n                                                      pCrossover = 1,\n                                                      mutate_child,\n                                                      mutation_rate = 0.01)\n          expect_equal(dim(test), c(20,10))\n          expect_is(test, \"matrix\")\n          expect_type(test, \"integer\")\n})\n\n# another one with different probability\ntest_that('test that create_next_generation works with pCrossover != 1',\n          {expect_error(create_next_generation(generation_t0, obj_fun_output,\n                                         select_parents,\n                                         crossover_method,\n                                         crossover_parents,\n                                         pCrossover = 0.8,\n                                         mutate_child,\n                                         mutation_rate = 0.01))\n})\n\n\n",
+    "created" : 1513231455223.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "4089836389",
+    "id" : "442D24C3",
+    "lastKnownWriteTime" : 1513233969,
+    "last_content_update" : 1513233969078,
+    "path" : "~/repos/STAT243/project/GA/tests/testthat/test-create-next-generation.R",
+    "project_path" : "tests/testthat/test-create-next-generation.R",
+    "properties" : {
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
